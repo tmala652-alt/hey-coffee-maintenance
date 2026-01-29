@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Plus, Pencil, Loader2, X } from 'lucide-react'
+import { Plus, Pencil, Loader2, X, AlertCircle } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import type { Branch } from '@/types/database.types'
 
@@ -14,6 +14,7 @@ export default function BranchForm({ branch }: BranchFormProps) {
   const router = useRouter()
   const [open, setOpen] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
   const [form, setForm] = useState({
     code: branch?.code || '',
     name: branch?.name || '',
@@ -23,6 +24,7 @@ export default function BranchForm({ branch }: BranchFormProps) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
+    setError(null)
 
     const supabase = createClient()
     const payload = {
@@ -31,15 +33,22 @@ export default function BranchForm({ branch }: BranchFormProps) {
       region: form.region || null,
     }
 
+    let result
     if (branch) {
-      await (supabase
-        .from('branches') as ReturnType<typeof supabase.from>)
+      result = await supabase
+        .from('branches')
         .update(payload)
         .eq('id', branch.id)
     } else {
-      await (supabase
-        .from('branches') as ReturnType<typeof supabase.from>)
+      result = await supabase
+        .from('branches')
         .insert(payload)
+    }
+
+    if (result.error) {
+      setError(result.error.message)
+      setLoading(false)
+      return
     }
 
     setOpen(false)
@@ -50,12 +59,19 @@ export default function BranchForm({ branch }: BranchFormProps) {
   const handleDelete = async () => {
     if (!branch || !confirm('ยืนยันการลบสาขานี้?')) return
     setLoading(true)
+    setError(null)
 
     const supabase = createClient()
-    await (supabase
-      .from('branches') as ReturnType<typeof supabase.from>)
+    const result = await supabase
+      .from('branches')
       .delete()
       .eq('id', branch.id)
+
+    if (result.error) {
+      setError(result.error.message)
+      setLoading(false)
+      return
+    }
 
     setOpen(false)
     router.refresh()
@@ -65,15 +81,16 @@ export default function BranchForm({ branch }: BranchFormProps) {
   return (
     <>
       <button
+        type="button"
         onClick={() => setOpen(true)}
-        className={branch ? 'btn-ghost btn-sm' : 'btn-primary'}
+        className={branch ? 'btn-ghost btn-sm' : 'btn-primary cursor-pointer'}
       >
         {branch ? <Pencil className="h-4 w-4" /> : <><Plus className="h-5 w-5" /> เพิ่มสาขา</>}
       </button>
 
       {open && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-xl w-full max-w-md">
+        <div className="fixed inset-0 bg-black/50 z-[100] flex items-center justify-center p-4">
+          <div className="bg-white rounded-xl w-full max-w-md shadow-2xl">
             <div className="flex items-center justify-between p-6 border-b border-coffee-100">
               <h2 className="text-lg font-semibold text-coffee-900">
                 {branch ? 'แก้ไขสาขา' : 'เพิ่มสาขาใหม่'}
@@ -84,6 +101,12 @@ export default function BranchForm({ branch }: BranchFormProps) {
             </div>
 
             <form onSubmit={handleSubmit} className="p-6 space-y-4">
+              {error && (
+                <div className="p-3 bg-cherry-50 border border-cherry-200 rounded-lg flex items-center gap-2 text-cherry-700 text-sm">
+                  <AlertCircle className="h-4 w-4 flex-shrink-0" />
+                  {error}
+                </div>
+              )}
               <div>
                 <label className="label">รหัสสาขา *</label>
                 <input
