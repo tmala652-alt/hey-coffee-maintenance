@@ -1,18 +1,18 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
-import { Users, Shield, Wrench, Building2, Phone, Truck, Crown, Store, HardHat, ChevronRight, Briefcase } from 'lucide-react'
+import { Users, Building2, Phone, Crown, Store, HardHat, Truck, Briefcase } from 'lucide-react'
 import EmptyState from '@/components/ui/EmptyState'
 import UserForm from './UserForm'
 import type { Profile, Branch, RoleEnum } from '@/types/database.types'
 
 type ProfileWithBranch = Profile & { branch: { name: string } | null }
 
-const roleConfig: Record<RoleEnum, { label: string; icon: typeof Shield; color: string; gradient: string }> = {
-  admin: { label: 'ผู้ดูแลระบบ', icon: Crown, color: 'bg-cherry-500/20 text-cherry-600', gradient: 'from-cherry-100 to-cherry-200' },
-  manager: { label: 'ผู้จัดการ', icon: Briefcase, color: 'bg-purple-500/20 text-purple-600', gradient: 'from-purple-100 to-purple-200' },
-  branch: { label: 'พนักงานสาขา', icon: Store, color: 'bg-coffee-100 text-coffee-700', gradient: 'from-coffee-100 to-coffee-200' },
-  technician: { label: 'ช่างเทคนิค', icon: HardHat, color: 'bg-matcha-500/20 text-matcha-600', gradient: 'from-matcha-100 to-matcha-200' },
-  vendor: { label: 'ผู้รับเหมา', icon: Truck, color: 'bg-honey-500/20 text-honey-600', gradient: 'from-honey-100 to-honey-200' },
+const roleConfig: Record<RoleEnum, { label: string; icon: typeof Crown; color: string }> = {
+  admin: { label: 'ผู้ดูแลระบบ', icon: Crown, color: 'text-purple-600 bg-purple-50' },
+  manager: { label: 'ผู้จัดการ', icon: Briefcase, color: 'text-indigo-600 bg-indigo-50' },
+  branch: { label: 'พนักงานสาขา', icon: Store, color: 'text-blue-600 bg-blue-50' },
+  technician: { label: 'ช่างเทคนิค', icon: HardHat, color: 'text-orange-600 bg-orange-50' },
+  vendor: { label: 'ผู้รับเหมา', icon: Truck, color: 'text-emerald-600 bg-emerald-50' },
 }
 
 export default async function UsersPage() {
@@ -36,7 +36,7 @@ export default async function UsersPage() {
 
   const { data: users } = await supabase
     .from('profiles')
-    .select('*, branch:branches(name)')
+    .select('*, branch:branches!profiles_branch_id_fkey(name)')
     .order('role')
     .order('name') as { data: ProfileWithBranch[] | null }
 
@@ -45,120 +45,88 @@ export default async function UsersPage() {
     .select('*')
     .order('name') as { data: Branch[] | null }
 
-  // Group users by role
-  const groupedUsers = users?.reduce((acc, u) => {
-    if (!acc[u.role]) acc[u.role] = []
-    acc[u.role].push(u)
-    return acc
-  }, {} as Record<RoleEnum, ProfileWithBranch[]>)
-
   const roleOrder: RoleEnum[] = ['admin', 'manager', 'technician', 'branch', 'vendor']
 
   return (
-    <div className="space-y-8 animate-fade-in">
+    <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
-        <div className="flex items-center gap-4">
-          <div className="relative group">
-            <div className="w-14 h-14 bg-gradient-to-br from-blue-500 to-blue-700 rounded-2xl flex items-center justify-center shadow-xl shadow-blue-700/30 transition-all duration-300 group-hover:shadow-2xl group-hover:shadow-blue-700/40 group-hover:scale-105">
-              <Users className="h-7 w-7 text-white" />
-            </div>
-            <div className="absolute -inset-1 bg-blue-500/20 rounded-2xl blur opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-          </div>
-          <div>
-            <h1 className="text-3xl font-bold text-coffee-900">จัดการผู้ใช้</h1>
-            <p className="text-coffee-500 mt-1 flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-matcha-500 animate-pulse" />
-              {users?.length || 0} คนในระบบ
-            </p>
-          </div>
-        </div>
-
-        {/* Role Summary */}
-        <div className="flex flex-wrap gap-3">
-          {roleOrder.map((role, index) => {
-            const config = roleConfig[role]
-            const count = groupedUsers?.[role]?.length || 0
-            if (count === 0) return null
-            return (
-              <div
-                key={role}
-                className={`px-4 py-2.5 rounded-xl bg-gradient-to-r ${config.gradient} flex items-center gap-2 shadow-sm hover:shadow-md hover:scale-105 transition-all duration-300 cursor-default animate-slide-in-right`}
-                style={{ animationDelay: `${index * 0.1}s` }}
-              >
-                <config.icon className="h-4 w-4" />
-                <span className="font-bold text-lg">{count}</span>
-                <span className="text-sm opacity-80">{config.label}</span>
-              </div>
-            )
-          })}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-semibold text-coffee-900">จัดการผู้ใช้</h1>
+          <p className="text-coffee-500 text-sm mt-1">{users?.length || 0} คนในระบบ</p>
         </div>
       </div>
 
-      {/* Users List by Role */}
+      {/* Users Table */}
       {users && users.length > 0 ? (
-        <div className="space-y-8">
-          {roleOrder.map((role, roleIndex) => {
-            const roleUsers = groupedUsers?.[role]
-            if (!roleUsers || roleUsers.length === 0) return null
-
-            const config = roleConfig[role]
-            const Icon = config.icon
-
-            return (
-              <div key={role} className="animate-slide-up" style={{ animationDelay: `${roleIndex * 100}ms` }}>
-                <div className="flex items-center gap-3 mb-4">
-                  <div className={`p-2 rounded-xl bg-gradient-to-br ${config.gradient}`}>
-                    <Icon className="h-5 w-5" />
-                  </div>
-                  <h2 className="text-xl font-bold text-coffee-900">{config.label}</h2>
-                  <span className="px-3 py-1 bg-coffee-100 rounded-full text-sm font-medium text-coffee-600">
-                    {roleUsers.length} คน
-                  </span>
-                </div>
-
-                <div className="card-glass overflow-hidden divide-y divide-coffee-100/50">
-                  {roleUsers.map((u, index) => (
-                    <div
-                      key={u.id}
-                      className="flex flex-col lg:flex-row lg:items-center gap-4 p-5 hover:bg-gradient-to-r hover:from-cream-50/50 hover:to-transparent transition-all duration-300 group"
-                      style={{ animationDelay: `${index * 30}ms` }}
-                    >
-                      <div className="flex items-center gap-4 flex-1">
-                        <div className={`w-14 h-14 rounded-xl bg-gradient-to-br ${config.gradient} flex items-center justify-center group-hover:scale-110 transition-transform duration-300`}>
-                          <Icon className="h-7 w-7" />
-                        </div>
-                        <div className="min-w-0 flex-1">
-                          <h3 className="font-semibold text-coffee-900 text-lg">{u.name}</h3>
-                          <div className="flex flex-wrap items-center gap-3 text-sm text-coffee-500 mt-1">
-                            {u.branch && (
-                              <span className="flex items-center gap-1.5 bg-coffee-100 px-2 py-0.5 rounded-lg">
-                                <Building2 className="h-3.5 w-3.5" />
-                                {(u.branch as { name: string }).name}
-                              </span>
-                            )}
-                            {u.phone && (
-                              <span className="flex items-center gap-1.5">
-                                <Phone className="h-3.5 w-3.5" />
-                                {u.phone}
-                              </span>
-                            )}
+        <div className="bg-white rounded-xl border border-coffee-100 overflow-hidden">
+          <table className="w-full">
+            <thead>
+              <tr className="border-b border-coffee-100 bg-coffee-50/50">
+                <th className="text-left py-3 px-4 text-sm font-medium text-coffee-600">ชื่อ</th>
+                <th className="text-left py-3 px-4 text-sm font-medium text-coffee-600 hidden sm:table-cell">บทบาท</th>
+                <th className="text-left py-3 px-4 text-sm font-medium text-coffee-600 hidden md:table-cell">สาขา</th>
+                <th className="text-left py-3 px-4 text-sm font-medium text-coffee-600 hidden lg:table-cell">โทรศัพท์</th>
+                <th className="py-3 px-4 w-20"></th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-coffee-50">
+              {roleOrder.flatMap((role) =>
+                users
+                  .filter((u) => u.role === role)
+                  .map((u) => {
+                    const config = roleConfig[u.role as RoleEnum]
+                    const Icon = config?.icon || Store
+                    return (
+                      <tr key={u.id} className="hover:bg-cream-50/50 transition-colors">
+                        <td className="py-3 px-4">
+                          <div className="flex items-center gap-3">
+                            <div className={`w-9 h-9 rounded-lg flex items-center justify-center ${config?.color || 'bg-coffee-50 text-coffee-600'}`}>
+                              <Icon className="h-4 w-4" />
+                            </div>
+                            <div>
+                              <p className="font-medium text-coffee-900">{u.name}</p>
+                              <p className="text-xs text-coffee-400 sm:hidden">{config?.label}</p>
+                            </div>
                           </div>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-3">
-                        <UserForm user={u} branches={branches || []} />
-                        <ChevronRight className="h-5 w-5 text-coffee-300 group-hover:text-coffee-500 transition-colors" />
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )
-          })}
+                        </td>
+                        <td className="py-3 px-4 hidden sm:table-cell">
+                          <span className={`inline-flex items-center gap-1.5 px-2 py-1 rounded-md text-xs font-medium ${config?.color || 'bg-coffee-50 text-coffee-600'}`}>
+                            {config?.label}
+                          </span>
+                        </td>
+                        <td className="py-3 px-4 hidden md:table-cell">
+                          {u.branch ? (
+                            <span className="flex items-center gap-1.5 text-sm text-coffee-600">
+                              <Building2 className="h-3.5 w-3.5 text-coffee-400" />
+                              {(u.branch as { name: string }).name}
+                            </span>
+                          ) : (
+                            <span className="text-coffee-300 text-sm">-</span>
+                          )}
+                        </td>
+                        <td className="py-3 px-4 hidden lg:table-cell">
+                          {u.phone ? (
+                            <span className="flex items-center gap-1.5 text-sm text-coffee-600">
+                              <Phone className="h-3.5 w-3.5 text-coffee-400" />
+                              {u.phone}
+                            </span>
+                          ) : (
+                            <span className="text-coffee-300 text-sm">-</span>
+                          )}
+                        </td>
+                        <td className="py-3 px-4">
+                          <UserForm user={u} branches={branches || []} />
+                        </td>
+                      </tr>
+                    )
+                  })
+              )}
+            </tbody>
+          </table>
         </div>
       ) : (
-        <div className="card-glass">
+        <div className="bg-white rounded-xl border border-coffee-100 p-8">
           <EmptyState
             icon={Users}
             title="ยังไม่มีผู้ใช้"
