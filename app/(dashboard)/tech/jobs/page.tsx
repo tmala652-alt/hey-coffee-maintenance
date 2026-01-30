@@ -1,8 +1,11 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
-import { Wrench, Clock, CheckCircle, Briefcase, Building2, Tag, Calendar, ChevronRight, Sparkles, Play } from 'lucide-react'
+import { Wrench, Clock, CheckCircle, Briefcase, Building2, Tag, Calendar, ChevronRight, Sparkles, Play, AlertTriangle } from 'lucide-react'
 import { StatusBadge, PriorityBadge } from '@/components/ui/StatusBadge'
+import { SLACountdownCompact } from '@/components/sla/SLACountdown'
+import QuickActionCard from '@/components/tech/QuickActionCard'
+import MobileBottomNav from '@/components/tech/MobileBottomNav'
 import EmptyState from '@/components/ui/EmptyState'
 import { formatDistanceToNow } from 'date-fns'
 import { th } from 'date-fns/locale'
@@ -45,20 +48,51 @@ export default async function TechJobsPage() {
   const assignedJobs = jobs?.filter((j) => j.status === 'assigned') || []
   const inProgressJobs = jobs?.filter((j) => j.status === 'in_progress') || []
 
+  // Count urgent jobs (SLA at risk)
+  const urgentJobs = jobs?.filter((j) => {
+    if (!j.due_at || !j.created_at) return false
+    const now = Date.now()
+    const created = new Date(j.created_at).getTime()
+    const due = new Date(j.due_at).getTime()
+    const elapsed = (now - created) / (due - created)
+    return elapsed >= 0.75
+  }).length || 0
+
   return (
-    <div className="space-y-8 animate-fade-in">
+    <div className="space-y-8 animate-fade-in pb-20 lg:pb-0">
       {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold text-coffee-900 flex items-center gap-3">
-          <div className="w-10 h-10 bg-gradient-to-br from-matcha-500 to-matcha-700 rounded-xl flex items-center justify-center shadow-lg shadow-matcha-700/30">
-            <Briefcase className="h-5 w-5 text-white" />
+      <div className="flex items-center gap-4">
+        <div className="relative group">
+          <div className="w-14 h-14 bg-gradient-to-br from-matcha-500 to-emerald-700 rounded-2xl flex items-center justify-center shadow-xl shadow-matcha-700/30 transition-all duration-300 group-hover:shadow-2xl group-hover:shadow-matcha-700/40 group-hover:scale-105">
+            <Briefcase className="h-7 w-7 text-white" />
           </div>
-          งานของฉัน
-        </h1>
-        <p className="text-coffee-600 mt-1">
-          {jobs?.length || 0} งานที่ต้องดำเนินการ
-        </p>
+          <div className="absolute -inset-1 bg-matcha-500/20 rounded-2xl blur opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+        </div>
+        <div>
+          <h1 className="text-3xl font-bold text-coffee-900">งานของฉัน</h1>
+          <p className="text-coffee-500 mt-1 flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-matcha-500 animate-pulse" />
+            {jobs?.length || 0} งานที่ต้องดำเนินการ
+          </p>
+        </div>
       </div>
+
+      {/* Urgent Alert */}
+      {urgentJobs > 0 && (
+        <div className="bg-gradient-to-r from-orange-50 to-cherry-50 border border-orange-200 rounded-xl p-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-orange-500 rounded-lg flex items-center justify-center animate-pulse">
+              <AlertTriangle className="h-5 w-5 text-white" />
+            </div>
+            <div>
+              <p className="font-semibold text-orange-700">
+                {urgentJobs} งานใกล้ครบ SLA
+              </p>
+              <p className="text-sm text-orange-600">ต้องเร่งดำเนินการ</p>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Stats */}
       <div className="grid grid-cols-2 gap-4 lg:gap-6">
@@ -131,15 +165,13 @@ export default async function TechJobsPage() {
                     )}
                   </div>
                   {job.due_at && (
-                    <p className="text-sm text-honey-600 mt-2 flex items-center gap-1.5 bg-honey-50 px-2 py-1 rounded-lg w-fit">
-                      <Calendar className="h-3.5 w-3.5" />
-                      กำหนด: {new Date(job.due_at).toLocaleDateString('th-TH', {
-                        day: 'numeric',
-                        month: 'short',
-                        hour: '2-digit',
-                        minute: '2-digit',
-                      })}
-                    </p>
+                    <div className="flex items-center gap-2 mt-2">
+                      <SLACountdownCompact
+                        createdAt={job.created_at}
+                        dueAt={job.due_at}
+                        status={job.status}
+                      />
+                    </div>
                   )}
                 </div>
                 <div className="flex items-center gap-3">
@@ -223,6 +255,9 @@ export default async function TechJobsPage() {
           </div>
         </div>
       )}
+
+      {/* Mobile Bottom Navigation */}
+      <MobileBottomNav />
     </div>
   )
 }

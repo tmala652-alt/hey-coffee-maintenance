@@ -44,7 +44,7 @@ export default function NotificationBell({ userId }: NotificationBellProps) {
         .select('*')
         .eq('user_id', userId)
         .order('created_at', { ascending: false })
-        .limit(20)
+        .limit(20) as { data: Notification[] | null }
 
       if (data) {
         setNotifications(data)
@@ -80,7 +80,7 @@ export default function NotificationBell({ userId }: NotificationBellProps) {
 
   const markAsRead = async (id: string) => {
     const supabase = createClient()
-    await supabase.from('notifications').update({ is_read: true }).eq('id', id)
+    await supabase.from('notifications').update({ is_read: true } as never).eq('id', id)
 
     setNotifications((prev) =>
       prev.map((n) => (n.id === id ? { ...n, is_read: true } : n))
@@ -92,7 +92,7 @@ export default function NotificationBell({ userId }: NotificationBellProps) {
     const supabase = createClient()
     await supabase
       .from('notifications')
-      .update({ is_read: true })
+      .update({ is_read: true } as never)
       .eq('user_id', userId)
       .eq('is_read', false)
 
@@ -101,16 +101,28 @@ export default function NotificationBell({ userId }: NotificationBellProps) {
   }
 
   return (
-    <div className="relative">
+    <div className="relative overflow-visible">
       <button
         onClick={() => setOpen(!open)}
-        className="relative p-2 text-coffee-600 hover:bg-coffee-100 rounded-lg transition-colors"
+        className={clsx(
+          "relative p-2.5 rounded-xl transition-all duration-300 overflow-visible group",
+          open
+            ? "bg-coffee-100 text-coffee-700"
+            : "text-coffee-600 hover:bg-coffee-100/50 hover:text-coffee-700"
+        )}
       >
-        <Bell className="h-5 w-5" />
+        <Bell className={clsx(
+          "h-5 w-5 transition-transform duration-300",
+          unreadCount > 0 && "animate-wiggle"
+        )} />
         {unreadCount > 0 && (
-          <span className="absolute -top-1 -right-1 w-5 h-5 bg-cherry-500 text-white text-xs font-bold rounded-full flex items-center justify-center">
+          <span className="absolute -top-1 -right-1 w-5 h-5 bg-gradient-to-br from-cherry-500 to-red-600 text-white text-xs font-bold rounded-full flex items-center justify-center z-10 shadow-lg shadow-cherry-500/40 animate-pulse">
             {unreadCount > 9 ? '9+' : unreadCount}
           </span>
+        )}
+        {/* Glow effect when has notifications */}
+        {unreadCount > 0 && (
+          <span className="absolute inset-0 rounded-xl bg-cherry-500/10 animate-pulse" />
         )}
       </button>
 
@@ -120,14 +132,24 @@ export default function NotificationBell({ userId }: NotificationBellProps) {
             className="fixed inset-0 z-40"
             onClick={() => setOpen(false)}
           />
-          <div className="absolute right-0 mt-2 w-80 bg-white rounded-xl shadow-xl border border-coffee-100 z-50 overflow-hidden">
+          <div className="absolute right-0 mt-2 w-96 bg-white rounded-2xl shadow-2xl shadow-coffee-900/10 border border-coffee-100/50 z-50 overflow-hidden animate-slide-in-up">
             {/* Header */}
-            <div className="flex items-center justify-between p-4 border-b border-coffee-100">
-              <h3 className="font-semibold text-coffee-900">การแจ้งเตือน</h3>
+            <div className="flex items-center justify-between p-4 border-b border-coffee-100 bg-gradient-to-r from-coffee-50 to-transparent">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 bg-gradient-to-br from-honey-100 to-honey-200 rounded-lg flex items-center justify-center">
+                  <Bell className="h-4 w-4 text-honey-700" />
+                </div>
+                <h3 className="font-bold text-coffee-900">การแจ้งเตือน</h3>
+                {unreadCount > 0 && (
+                  <span className="px-2 py-0.5 bg-cherry-100 text-cherry-700 text-xs font-bold rounded-full">
+                    {unreadCount} ใหม่
+                  </span>
+                )}
+              </div>
               {unreadCount > 0 && (
                 <button
                   onClick={markAllAsRead}
-                  className="text-xs text-coffee-500 hover:text-coffee-700 flex items-center gap-1"
+                  className="text-xs text-coffee-500 hover:text-coffee-700 flex items-center gap-1 px-2 py-1 rounded-lg hover:bg-coffee-100 transition-colors"
                 >
                   <CheckCheck className="h-3.5 w-3.5" />
                   อ่านทั้งหมด

@@ -12,6 +12,7 @@ export default function SettingsPage() {
   const [saving, setSaving] = useState(false)
   const [success, setSuccess] = useState(false)
   const [profile, setProfile] = useState<Profile | null>(null)
+  const [userEmail, setUserEmail] = useState<string>('')
   const [branches, setBranches] = useState<Branch[]>([])
 
   const [form, setForm] = useState({
@@ -34,6 +35,8 @@ export default function SettingsPage() {
         router.push('/login')
         return
       }
+
+      setUserEmail(user.email || '')
 
       const { data: profileData } = await supabase
         .from('profiles')
@@ -76,7 +79,7 @@ export default function SettingsPage() {
         name: form.name,
         phone: form.phone,
         branch_id: form.branch_id || null,
-      })
+      } as never)
       .eq('id', profile.id)
 
     setSaving(false)
@@ -97,14 +100,19 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="max-w-3xl mx-auto space-y-6">
+    <div className="max-w-3xl mx-auto space-y-6 animate-fade-in">
       {/* Header */}
-      <div>
-        <h1 className="text-2xl font-bold text-coffee-900 flex items-center gap-3">
-          <UserCog className="h-7 w-7 text-coffee-600" />
-          จัดการข้อมูล
-        </h1>
-        <p className="text-coffee-600 mt-1">จัดการข้อมูลส่วนตัวและบัญชีของคุณ</p>
+      <div className="flex items-center gap-4">
+        <div className="relative group">
+          <div className="w-14 h-14 bg-gradient-to-br from-violet-500 to-purple-700 rounded-2xl flex items-center justify-center shadow-xl shadow-purple-700/30 transition-all duration-300 group-hover:shadow-2xl group-hover:shadow-purple-700/40 group-hover:scale-105">
+            <UserCog className="h-7 w-7 text-white" />
+          </div>
+          <div className="absolute -inset-1 bg-purple-500/20 rounded-2xl blur opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+        </div>
+        <div>
+          <h1 className="text-3xl font-bold text-coffee-900">จัดการข้อมูล</h1>
+          <p className="text-coffee-500 mt-1">จัดการข้อมูลส่วนตัวและบัญชีของคุณ</p>
+        </div>
       </div>
 
       {/* Success Message */}
@@ -202,7 +210,7 @@ export default function SettingsPage() {
                   <Mail className="h-4 w-4" />
                   อีเมล
                 </span>
-                <span className="text-coffee-900 font-medium">{profile?.email}</span>
+                <span className="text-coffee-900 font-medium">{userEmail}</span>
               </div>
               <div className="flex justify-between py-2 bg-cream-50 px-3 rounded-lg">
                 <span className="text-coffee-500">บทบาท</span>

@@ -1,6 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
-import { Users, Shield, Wrench, Building2, Phone, Truck, Crown, Store, HardHat, ChevronRight } from 'lucide-react'
+import { Users, Shield, Wrench, Building2, Phone, Truck, Crown, Store, HardHat, ChevronRight, Briefcase } from 'lucide-react'
 import EmptyState from '@/components/ui/EmptyState'
 import UserForm from './UserForm'
 import type { Profile, Branch, RoleEnum } from '@/types/database.types'
@@ -9,6 +9,7 @@ type ProfileWithBranch = Profile & { branch: { name: string } | null }
 
 const roleConfig: Record<RoleEnum, { label: string; icon: typeof Shield; color: string; gradient: string }> = {
   admin: { label: 'ผู้ดูแลระบบ', icon: Crown, color: 'bg-cherry-500/20 text-cherry-600', gradient: 'from-cherry-100 to-cherry-200' },
+  manager: { label: 'ผู้จัดการ', icon: Briefcase, color: 'bg-purple-500/20 text-purple-600', gradient: 'from-purple-100 to-purple-200' },
   branch: { label: 'พนักงานสาขา', icon: Store, color: 'bg-coffee-100 text-coffee-700', gradient: 'from-coffee-100 to-coffee-200' },
   technician: { label: 'ช่างเทคนิค', icon: HardHat, color: 'bg-matcha-500/20 text-matcha-600', gradient: 'from-matcha-100 to-matcha-200' },
   vendor: { label: 'ผู้รับเหมา', icon: Truck, color: 'bg-honey-500/20 text-honey-600', gradient: 'from-honey-100 to-honey-200' },
@@ -51,32 +52,42 @@ export default async function UsersPage() {
     return acc
   }, {} as Record<RoleEnum, ProfileWithBranch[]>)
 
-  const roleOrder: RoleEnum[] = ['admin', 'technician', 'branch', 'vendor']
+  const roleOrder: RoleEnum[] = ['admin', 'manager', 'technician', 'branch', 'vendor']
 
   return (
     <div className="space-y-8 animate-fade-in">
       {/* Header */}
       <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
-        <div>
-          <h1 className="text-3xl font-bold text-coffee-900 flex items-center gap-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-700 rounded-xl flex items-center justify-center shadow-lg shadow-blue-700/30">
-              <Users className="h-5 w-5 text-white" />
+        <div className="flex items-center gap-4">
+          <div className="relative group">
+            <div className="w-14 h-14 bg-gradient-to-br from-blue-500 to-blue-700 rounded-2xl flex items-center justify-center shadow-xl shadow-blue-700/30 transition-all duration-300 group-hover:shadow-2xl group-hover:shadow-blue-700/40 group-hover:scale-105">
+              <Users className="h-7 w-7 text-white" />
             </div>
-            จัดการผู้ใช้
-          </h1>
-          <p className="text-coffee-600 mt-1">{users?.length || 0} คนในระบบ</p>
+            <div className="absolute -inset-1 bg-blue-500/20 rounded-2xl blur opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+          </div>
+          <div>
+            <h1 className="text-3xl font-bold text-coffee-900">จัดการผู้ใช้</h1>
+            <p className="text-coffee-500 mt-1 flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-matcha-500 animate-pulse" />
+              {users?.length || 0} คนในระบบ
+            </p>
+          </div>
         </div>
 
         {/* Role Summary */}
         <div className="flex flex-wrap gap-3">
-          {roleOrder.map((role) => {
+          {roleOrder.map((role, index) => {
             const config = roleConfig[role]
             const count = groupedUsers?.[role]?.length || 0
             if (count === 0) return null
             return (
-              <div key={role} className={`px-4 py-2 rounded-xl bg-gradient-to-r ${config.gradient} flex items-center gap-2`}>
+              <div
+                key={role}
+                className={`px-4 py-2.5 rounded-xl bg-gradient-to-r ${config.gradient} flex items-center gap-2 shadow-sm hover:shadow-md hover:scale-105 transition-all duration-300 cursor-default animate-slide-in-right`}
+                style={{ animationDelay: `${index * 0.1}s` }}
+              >
                 <config.icon className="h-4 w-4" />
-                <span className="font-semibold">{count}</span>
+                <span className="font-bold text-lg">{count}</span>
                 <span className="text-sm opacity-80">{config.label}</span>
               </div>
             )

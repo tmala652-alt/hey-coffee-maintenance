@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { ArrowLeft, Loader2, Upload, X, Image as ImageIcon, Wrench, Building2, Tag, Clock, FileText, Camera, AlertCircle, Send, Sparkles, Zap, Droplets, Wind, Coffee, Snowflake, Armchair, Home, Monitor, MoreHorizontal, ArrowDown, Minus, ArrowUp, AlertTriangle, MapPin, Navigation } from 'lucide-react'
+import { ArrowLeft, Loader2, Upload, X, Image as ImageIcon, Wrench, Building2, Tag, Clock, FileText, Camera, AlertCircle, Send, Sparkles, Zap, Droplets, Wind, Coffee, Snowflake, Armchair, Home, Monitor, MoreHorizontal, ArrowDown, Minus, ArrowUp, AlertTriangle, MapPin, Navigation, Video, Play } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import type { Branch, Profile } from '@/types/database.types'
 import { clsx } from 'clsx'
@@ -41,7 +41,7 @@ export default function NewRequestPage() {
   const [uploading, setUploading] = useState(false)
   const [branches, setBranches] = useState<Branch[]>([])
   const [profile, setProfile] = useState<Profile | null>(null)
-  const [images, setImages] = useState<{ url: string; path: string }[]>([])
+  const [media, setMedia] = useState<{ url: string; path: string; type: 'image' | 'video' }[]>([])
 
   const [form, setForm] = useState({
     title: '',
@@ -51,6 +51,7 @@ export default function NewRequestPage() {
     branch_id: '',
     location: '',
     sla_hours: 24,
+    sla_mode: 'calendar' as 'calendar' | 'working_hours',
   })
 
   // Common locations within branches
@@ -98,7 +99,7 @@ export default function NewRequestPage() {
     fetchData()
   }, [])
 
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleMediaUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files
     if (!files || files.length === 0) return
 
@@ -107,8 +108,18 @@ export default function NewRequestPage() {
     const { data: { user } } = await supabase.auth.getUser()
 
     for (const file of Array.from(files)) {
+      // Check file size (50MB max for videos, 5MB for images)
+      const isVideo = file.type.startsWith('video/')
+      const maxSize = isVideo ? 50 * 1024 * 1024 : 5 * 1024 * 1024
+
+      if (file.size > maxSize) {
+        alert(`ไฟล์ ${file.name} มีขนาดใหญ่เกินไป (สูงสุด ${isVideo ? '50MB' : '5MB'})`)
+        continue
+      }
+
       const fileExt = file.name.split('.').pop()
       const fileName = `${user?.id}/${Date.now()}.${fileExt}`
+      const fileType: 'image' | 'video' = isVideo ? 'video' : 'image'
 
       const { error } = await supabase.storage
         .from('images')
@@ -119,16 +130,19 @@ export default function NewRequestPage() {
           .from('images')
           .getPublicUrl(fileName)
 
-        setImages(prev => [...prev, { url: publicUrl, path: fileName }])
+        setMedia(prev => [...prev, { url: publicUrl, path: fileName, type: fileType }])
+      } else {
+        console.error('Upload error:', error)
+        alert(`ไม่สามารถอัพโหลด ${file.name} ได้`)
       }
     }
     setUploading(false)
   }
 
-  const removeImage = async (path: string) => {
+  const removeMedia = async (path: string) => {
     const supabase = createClient()
     await supabase.storage.from('images').remove([path])
-    setImages(prev => prev.filter(img => img.path !== path))
+    setMedia(prev => prev.filter(m => m.path !== path))
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -159,6 +173,7 @@ export default function NewRequestPage() {
         priority: form.priority,
         branch_id: form.branch_id || profile?.branch_id,
         sla_hours: form.sla_hours,
+        sla_mode: form.sla_mode,
         created_by: user.id,
       })
       .select()
@@ -170,14 +185,14 @@ export default function NewRequestPage() {
       return
     }
 
-    // Add attachments
-    if (images.length > 0) {
+    // Add attachments (images and videos)
+    if (media.length > 0) {
       await (supabase.from('attachments') as ReturnType<typeof supabase.from>).insert(
-        images.map(img => ({
+        media.map(m => ({
           request_id: (request as { id: string }).id,
           uploaded_by: user.id,
-          file_url: img.url,
-          type: 'image' as const,
+          file_url: m.url,
+          type: m.type as 'image' | 'video',
         }))
       )
     }
@@ -192,17 +207,26 @@ export default function NewRequestPage() {
     <div className="max-w-3xl mx-auto space-y-6 animate-fade-in">
       {/* Header */}
       <div className="flex items-center gap-4">
-        <Link href="/requests" className="p-2 hover:bg-coffee-100 rounded-xl transition-colors">
-          <ArrowLeft className="h-6 w-6 text-coffee-600" />
+        <Link
+          href="/requests"
+          className="p-2.5 hover:bg-coffee-100 rounded-xl transition-all duration-300 hover:scale-105 group"
+        >
+          <ArrowLeft className="h-6 w-6 text-coffee-600 transition-transform group-hover:-translate-x-1" />
         </Link>
-        <div className="flex-1">
-          <h1 className="text-3xl font-bold text-coffee-900 flex items-center gap-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-honey-400 to-honey-600 rounded-xl flex items-center justify-center shadow-lg shadow-honey-500/30">
-              <Wrench className="h-5 w-5 text-white" />
+        <div className="flex items-center gap-4 flex-1">
+          <div className="relative group">
+            <div className="w-14 h-14 bg-gradient-to-br from-amber-400 via-orange-500 to-red-500 rounded-2xl flex items-center justify-center shadow-xl shadow-orange-500/30 transition-all duration-300 group-hover:shadow-2xl group-hover:shadow-orange-500/40 group-hover:scale-105">
+              <Wrench className="h-7 w-7 text-white" />
             </div>
-            แจ้งซ่อมใหม่
-          </h1>
-          <p className="text-coffee-600 mt-1">กรอกรายละเอียดปัญหาที่ต้องการแจ้งซ่อม</p>
+            <div className="absolute -inset-1 bg-orange-500/20 rounded-2xl blur opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+          </div>
+          <div>
+            <h1 className="text-3xl font-bold text-coffee-900">แจ้งซ่อมใหม่</h1>
+            <p className="text-coffee-500 mt-1 flex items-center gap-2">
+              <Sparkles className="h-4 w-4 text-honey-500" />
+              กรอกรายละเอียดปัญหาที่ต้องการแจ้งซ่อม
+            </p>
+          </div>
         </div>
       </div>
 
@@ -365,10 +389,52 @@ export default function NewRequestPage() {
 
         {/* SLA */}
         <div className="card-glass p-6">
-          <label className="label flex items-center gap-2 mb-4">
+          <label className="label flex items-center gap-2 mb-2">
             <Clock className="h-4 w-4" />
             ระยะเวลาดำเนินการ (SLA)
           </label>
+          <p className="text-sm text-coffee-500 mb-4">
+            SLA (Service Level Agreement) คือระยะเวลาที่กำหนดให้งานต้องเสร็จสิ้น หากเลือกเวลาสั้น งานจะถูกจัดลำดับความสำคัญสูงขึ้น
+          </p>
+
+          {/* SLA Mode Selector */}
+          <div className="mb-4">
+            <label className="text-xs font-medium text-coffee-600 mb-2 block">วิธีนับเวลา</label>
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={() => setForm({ ...form, sla_mode: 'calendar' })}
+                className={clsx(
+                  'flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg border-2 transition-all',
+                  form.sla_mode === 'calendar'
+                    ? 'bg-matcha-50 border-matcha-500 text-matcha-700'
+                    : 'bg-white border-coffee-200 text-coffee-500 hover:border-coffee-300'
+                )}
+              >
+                <Clock className="h-4 w-4" />
+                <span className="font-medium">เวลาปฏิทิน</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setForm({ ...form, sla_mode: 'working_hours' })}
+                className={clsx(
+                  'flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg border-2 transition-all',
+                  form.sla_mode === 'working_hours'
+                    ? 'bg-honey-50 border-honey-500 text-honey-700'
+                    : 'bg-white border-coffee-200 text-coffee-500 hover:border-coffee-300'
+                )}
+              >
+                <Building2 className="h-4 w-4" />
+                <span className="font-medium">เวลาทำการ</span>
+              </button>
+            </div>
+            <p className="text-xs text-coffee-400 mt-2">
+              {form.sla_mode === 'calendar'
+                ? 'นับเวลาต่อเนื่อง 24 ชม. รวมวันหยุด'
+                : 'นับเฉพาะเวลาทำการของสาขา ไม่รวมวันหยุด'}
+            </p>
+          </div>
+
           <div className="grid grid-cols-5 gap-2">
             {slaOptions.map((opt) => (
               <button
@@ -405,11 +471,11 @@ export default function NewRequestPage() {
           />
         </div>
 
-        {/* Images */}
+        {/* Images & Videos */}
         <div className="card-glass p-6">
           <label className="label flex items-center gap-2 mb-4">
             <Camera className="h-4 w-4" />
-            รูปภาพประกอบ
+            รูปภาพ / วิดีโอประกอบ
           </label>
           <div className="space-y-4">
             {/* Upload Button */}
@@ -418,38 +484,61 @@ export default function NewRequestPage() {
                 <Loader2 className="h-8 w-8 animate-spin text-coffee-500" />
               ) : (
                 <>
-                  <div className="w-14 h-14 bg-gradient-to-br from-cream-100 to-cream-200 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
-                    <Upload className="h-7 w-7 text-coffee-500" />
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 bg-gradient-to-br from-cream-100 to-cream-200 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                      <Camera className="h-6 w-6 text-coffee-500" />
+                    </div>
+                    <div className="w-12 h-12 bg-gradient-to-br from-purple-100 to-purple-200 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                      <Video className="h-6 w-6 text-purple-600" />
+                    </div>
                   </div>
                   <div className="text-center">
-                    <span className="text-coffee-700 font-medium block">คลิกเพื่ออัพโหลดรูปภาพ</span>
-                    <span className="text-sm text-coffee-400">รองรับ JPG, PNG ขนาดไม่เกิน 5MB</span>
+                    <span className="text-coffee-700 font-medium block">คลิกเพื่ออัพโหลดรูปภาพหรือวิดีโอ</span>
+                    <span className="text-sm text-coffee-400">รูปภาพ: JPG, PNG (สูงสุด 5MB) | วิดีโอ: MP4, MOV (สูงสุด 50MB)</span>
                   </div>
                 </>
               )}
               <input
                 type="file"
-                accept="image/*"
+                accept="image/*,video/*"
                 multiple
-                onChange={handleImageUpload}
+                onChange={handleMediaUpload}
                 className="hidden"
                 disabled={uploading}
               />
             </label>
 
             {/* Preview */}
-            {images.length > 0 && (
+            {media.length > 0 && (
               <div className="grid grid-cols-3 sm:grid-cols-4 gap-4">
-                {images.map((img, index) => (
-                  <div key={img.path} className="relative group animate-scale-in" style={{ animationDelay: `${index * 50}ms` }}>
-                    <img
-                      src={img.url}
-                      alt=""
-                      className="w-full h-28 object-cover rounded-xl shadow-md"
-                    />
+                {media.map((m, index) => (
+                  <div key={m.path} className="relative group animate-scale-in" style={{ animationDelay: `${index * 50}ms` }}>
+                    {m.type === 'image' ? (
+                      <img
+                        src={m.url}
+                        alt=""
+                        className="w-full h-28 object-cover rounded-xl shadow-md"
+                      />
+                    ) : (
+                      <div className="relative w-full h-28 bg-gradient-to-br from-purple-100 to-purple-200 rounded-xl shadow-md flex items-center justify-center">
+                        <video
+                          src={m.url}
+                          className="absolute inset-0 w-full h-full object-cover rounded-xl"
+                          muted
+                        />
+                        <div className="absolute inset-0 bg-black/30 rounded-xl flex items-center justify-center">
+                          <div className="w-10 h-10 bg-white/90 rounded-full flex items-center justify-center">
+                            <Play className="h-5 w-5 text-purple-600 ml-0.5" />
+                          </div>
+                        </div>
+                        <div className="absolute bottom-1 left-1 px-1.5 py-0.5 bg-purple-600 rounded text-white text-xs font-medium">
+                          วิดีโอ
+                        </div>
+                      </div>
+                    )}
                     <button
                       type="button"
-                      onClick={() => removeImage(img.path)}
+                      onClick={() => removeMedia(m.path)}
                       className="absolute -top-2 -right-2 p-1.5 bg-cherry-500 rounded-full text-white shadow-lg opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-cherry-600 hover:scale-110"
                     >
                       <X className="h-4 w-4" />
