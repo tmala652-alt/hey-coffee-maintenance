@@ -1,9 +1,19 @@
-import { SupabaseClient } from '@supabase/supabase-js'
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type SupabaseClientAny = any
 
-type NotificationType = 'assignment' | 'sla_warning' | 'status_change' | 'chat' | 'scheduled'
+type NotificationType =
+  | 'assignment'
+  | 'sla_warning'
+  | 'status_change'
+  | 'chat'
+  | 'scheduled'
+  | 'approval_required'
+  | 'approval_approved'
+  | 'approval_rejected'
+  | 'disbursement_ready'
 
 export async function createNotification(
-  supabase: SupabaseClient,
+  supabase: SupabaseClientAny,
   userId: string,
   type: NotificationType,
   title: string,
@@ -16,11 +26,11 @@ export async function createNotification(
     title,
     message,
     request_id: requestId,
-  })
+  } as never)
 }
 
 export async function notifyAssignment(
-  supabase: SupabaseClient,
+  supabase: SupabaseClientAny,
   assigneeId: string,
   requestTitle: string,
   requestId: string
@@ -36,7 +46,7 @@ export async function notifyAssignment(
 }
 
 export async function notifySLAWarning(
-  supabase: SupabaseClient,
+  supabase: SupabaseClientAny,
   userId: string,
   requestTitle: string,
   requestId: string,
@@ -53,7 +63,7 @@ export async function notifySLAWarning(
 }
 
 export async function notifyStatusChange(
-  supabase: SupabaseClient,
+  supabase: SupabaseClientAny,
   userId: string,
   requestTitle: string,
   requestId: string,
@@ -78,7 +88,7 @@ export async function notifyStatusChange(
 }
 
 export async function notifyChat(
-  supabase: SupabaseClient,
+  supabase: SupabaseClientAny,
   userId: string,
   senderName: string,
   requestId: string
@@ -94,7 +104,7 @@ export async function notifyChat(
 }
 
 export async function notifyScheduledMaintenance(
-  supabase: SupabaseClient,
+  supabase: SupabaseClientAny,
   userId: string,
   scheduleName: string,
   requestId: string
@@ -106,5 +116,138 @@ export async function notifyScheduledMaintenance(
     'งานบำรุงรักษาตามกำหนดถูกสร้าง',
     scheduleName,
     requestId
+  )
+}
+
+export async function notifySLABreach(
+  supabase: SupabaseClientAny,
+  userId: string,
+  requestTitle: string,
+  requestId: string
+) {
+  return createNotification(
+    supabase,
+    userId,
+    'sla_warning',
+    'งานเกินกำหนด SLA แล้ว!',
+    requestTitle,
+    requestId
+  )
+}
+
+export async function notifySLACritical(
+  supabase: SupabaseClientAny,
+  userId: string,
+  requestTitle: string,
+  requestId: string,
+  hoursRemaining: number
+) {
+  return createNotification(
+    supabase,
+    userId,
+    'sla_warning',
+    `เร่งด่วน! SLA เหลือเวลาไม่ถึง ${hoursRemaining} ชั่วโมง`,
+    requestTitle,
+    requestId
+  )
+}
+
+// Batch notify multiple users
+export async function notifyMultipleUsers(
+  supabase: SupabaseClientAny,
+  userIds: string[],
+  type: NotificationType,
+  title: string,
+  message?: string,
+  requestId?: string
+) {
+  const notifications = userIds.map((userId) => ({
+    user_id: userId,
+    type,
+    title,
+    message,
+    request_id: requestId,
+  }))
+
+  return supabase.from('notifications').insert(notifications as never)
+}
+
+// Approval notifications
+export async function notifyApprovalRequired(
+  supabase: SupabaseClientAny,
+  userId: string,
+  recordType: string,
+  amount: number
+) {
+  const typeLabels: Record<string, string> = {
+    invoice: 'บิลผู้ขาย',
+    expense: 'ค่าใช้จ่าย',
+    disbursement: 'ใบเบิกเงิน',
+  }
+
+  return createNotification(
+    supabase,
+    userId,
+    'approval_required',
+    'มีรายการรออนุมัติ',
+    `${typeLabels[recordType] || recordType} จำนวน ฿${amount.toLocaleString()}`
+  )
+}
+
+export async function notifyApprovalApproved(
+  supabase: SupabaseClientAny,
+  userId: string,
+  recordType: string,
+  amount: number
+) {
+  const typeLabels: Record<string, string> = {
+    invoice: 'บิลผู้ขาย',
+    expense: 'ค่าใช้จ่าย',
+    disbursement: 'ใบเบิกเงิน',
+  }
+
+  return createNotification(
+    supabase,
+    userId,
+    'approval_approved',
+    'รายการได้รับการอนุมัติแล้ว',
+    `${typeLabels[recordType] || recordType} จำนวน ฿${amount.toLocaleString()}`
+  )
+}
+
+export async function notifyApprovalRejected(
+  supabase: SupabaseClientAny,
+  userId: string,
+  recordType: string,
+  amount: number,
+  reason?: string
+) {
+  const typeLabels: Record<string, string> = {
+    invoice: 'บิลผู้ขาย',
+    expense: 'ค่าใช้จ่าย',
+    disbursement: 'ใบเบิกเงิน',
+  }
+
+  return createNotification(
+    supabase,
+    userId,
+    'approval_rejected',
+    'รายการไม่ได้รับการอนุมัติ',
+    `${typeLabels[recordType] || recordType} ฿${amount.toLocaleString()}${reason ? ` - ${reason}` : ''}`
+  )
+}
+
+export async function notifyDisbursementReady(
+  supabase: SupabaseClientAny,
+  userId: string,
+  documentNumber: string,
+  amount: number
+) {
+  return createNotification(
+    supabase,
+    userId,
+    'disbursement_ready',
+    'ใบเบิกเงินพร้อมจ่าย',
+    `เลขที่ ${documentNumber} จำนวน ฿${amount.toLocaleString()}`
   )
 }

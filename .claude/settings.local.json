@@ -15,7 +15,18 @@
       "Bash(npm install)",
       "Bash(npm run build:*)",
       "Bash(npm run dev)",
-      "Bash(curl:*)"
+      "Bash(curl:*)",
+      "Bash(git push:*)",
+      "Bash(ls:*)",
+      "Bash(find:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(claude:*)",
+      "Bash(npx tsc:*)",
+      "Bash(lsof:*)",
+      "Bash(xargs:*)",
+      "Bash(pkill:*)",
+      "mcp__supabase__get_logs"
     ]
   },
   "enableAllProjectMcpServers": true,

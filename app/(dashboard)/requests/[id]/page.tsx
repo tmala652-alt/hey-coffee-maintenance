@@ -9,6 +9,8 @@ import RequestActions from './RequestActions'
 import ChatSection from './ChatSection'
 import ImageGallery from './ImageGallery'
 import FeedbackPrompt from './FeedbackPrompt'
+import AutoAssignSection from './AutoAssignSection'
+import IncidentAlert from '@/components/incident/IncidentAlert'
 import type { Profile, MaintenanceRequest, Attachment, StatusLog, Vendor } from '@/types/database.types'
 
 type RequestWithRelations = MaintenanceRequest & {
@@ -111,6 +113,9 @@ export default async function RequestDetailPage({
       <div className="grid lg:grid-cols-3 gap-6">
         {/* Main Content */}
         <div className="lg:col-span-2 space-y-6">
+          {/* Incident Alert - Check for repeat issues */}
+          <IncidentAlert request={request} />
+
           {/* Description */}
           <div className="card p-6">
             <h2 className="text-lg font-semibold text-coffee-900 mb-4">รายละเอียด</h2>
@@ -119,11 +124,11 @@ export default async function RequestDetailPage({
             </p>
           </div>
 
-          {/* Images */}
-          {attachments && attachments.length > 0 && (
-            <div className="card p-6">
-              <h2 className="text-lg font-semibold text-coffee-900 mb-4">รูปภาพ</h2>
-              <ImageGallery images={attachments.filter(a => a.type === 'image')} />
+          {/* Images & Videos */}
+          {attachments && attachments.filter(a => a.type === 'image' || a.type === 'video').length > 0 && (
+            <div className="card p-6" id="images">
+              <h2 className="text-lg font-semibold text-coffee-900 mb-4">รูปภาพ / วิดีโอ</h2>
+              <ImageGallery images={attachments.filter(a => a.type === 'image' || a.type === 'video')} />
             </div>
           )}
 
@@ -165,6 +170,11 @@ export default async function RequestDetailPage({
 
         {/* Sidebar */}
         <div className="space-y-6">
+          {/* Auto Assign Panel - Show for admins when not assigned */}
+          {isAdmin && !request.assigned_user_id && !request.assigned_vendor_id && request.status === 'pending' && (
+            <AutoAssignSection request={request} />
+          )}
+
           {/* Actions */}
           {canEdit && (
             <RequestActions

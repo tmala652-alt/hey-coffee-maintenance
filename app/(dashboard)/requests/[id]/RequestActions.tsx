@@ -1,14 +1,15 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { Loader2, UserPlus, Play, CheckCircle, XCircle, Banknote } from 'lucide-react'
+import { Loader2, UserPlus, Play, CheckCircle, XCircle, Banknote, Pause } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { MaintenanceRequest, Profile, Vendor, StatusEnum } from '@/types/database.types'
 import { notifyAssignment, notifyStatusChange } from '@/lib/notifications'
+import { PauseModal, ResumeModal } from '@/components/job-control/PauseResumeModal'
 
 interface RequestActionsProps {
-  request: MaintenanceRequest
+  request: MaintenanceRequest & { is_paused?: boolean | null }
   technicians: Profile[]
   vendors: Vendor[]
   isAdmin: boolean
@@ -24,10 +25,25 @@ export default function RequestActions({
   const [loading, setLoading] = useState(false)
   const [showAssign, setShowAssign] = useState(false)
   const [showCost, setShowCost] = useState(false)
+  const [showPauseModal, setShowPauseModal] = useState(false)
+  const [showResumeModal, setShowResumeModal] = useState(false)
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null)
   const [assignType, setAssignType] = useState<'technician' | 'vendor'>('technician')
   const [selectedId, setSelectedId] = useState('')
   const [costAmount, setCostAmount] = useState('')
   const [costDescription, setCostDescription] = useState('')
+
+  // Get current user ID
+  useEffect(() => {
+    const getUser = async () => {
+      const supabase = createClient()
+      const { data: { user } } = await supabase.auth.getUser()
+      if (user) {
+        setCurrentUserId(user.id)
+      }
+    }
+    getUser()
+  }, [])
 
   const updateStatus = async (status: StatusEnum) => {
     setLoading(true)
@@ -35,7 +51,7 @@ export default function RequestActions({
 
     await supabase
       .from('maintenance_requests')
-      .update({ status })
+      .update({ status } as never)
       .eq('id', request.id)
 
     // Notify request creator about status change
@@ -59,7 +75,7 @@ export default function RequestActions({
 
     await supabase
       .from('maintenance_requests')
-      .update(update)
+      .update(update as never)
       .eq('id', request.id)
 
     // Send notification to assignee
@@ -84,12 +100,12 @@ export default function RequestActions({
     const supabase = createClient()
     const { data: { user } } = await supabase.auth.getUser()
 
-    await (supabase.from('cost_logs') as ReturnType<typeof supabase.from>).insert({
+    await supabase.from('cost_logs').insert({
       request_id: request.id,
       amount: parseFloat(costAmount),
       description: costDescription,
       added_by: user!.id,
-    })
+    } as never)
 
     setCostAmount('')
     setCostDescription('')
@@ -99,9 +115,11 @@ export default function RequestActions({
   }
 
   const canAssign = isAdmin && (request.status === 'pending' || request.status === 'assigned')
-  const canStart = request.status === 'assigned'
-  const canComplete = request.status === 'in_progress'
+  const canStart = request.status === 'assigned' && !request.is_paused
+  const canComplete = request.status === 'in_progress' && !request.is_paused
   const canCancel = request.status !== 'completed' && request.status !== 'cancelled'
+  const canPause = (request.status === 'assigned' || request.status === 'in_progress') && !request.is_paused
+  const canResume = request.is_paused === true
 
   return (
     <div className="card p-6 space-y-4">
@@ -199,6 +217,30 @@ export default function RequestActions({
           </button>
         )}
 
+        {/* Pause */}
+        {canPause && (
+          <button
+            onClick={() => setShowPauseModal(true)}
+            disabled={loading}
+            className="btn-secondary w-full text-amber-600 hover:bg-amber-50 border-amber-200"
+          >
+            <Pause className="h-5 w-5" />
+            พักงานชั่วคราว
+          </button>
+        )}
+
+        {/* Resume */}
+        {canResume && (
+          <button
+            onClick={() => setShowResumeModal(true)}
+            disabled={loading}
+            className="btn-accent w-full bg-matcha-500 hover:bg-matcha-600"
+          >
+            <Play className="h-5 w-5" />
+            ดำเนินการต่อ
+          </button>
+        )}
+
         {/* Add Cost */}
         {(request.status === 'in_progress' || request.status === 'completed') && (
           <>
@@ -278,6 +320,32 @@ export default function RequestActions({
           </button>
         )}
       </div>
+
+      {/* Pause Modal */}
+      {showPauseModal && currentUserId && (
+        <PauseModal
+          requestId={request.id}
+          userId={currentUserId}
+          onClose={() => setShowPauseModal(false)}
+          onSuccess={() => {
+            setShowPauseModal(false)
+            router.refresh()
+          }}
+        />
+      )}
+
+      {/* Resume Modal */}
+      {showResumeModal && currentUserId && (
+        <ResumeModal
+          requestId={request.id}
+          userId={currentUserId}
+          onClose={() => setShowResumeModal(false)}
+          onSuccess={() => {
+            setShowResumeModal(false)
+            router.refresh()
+          }}
+        />
+      )}
     </div>
   )
 }

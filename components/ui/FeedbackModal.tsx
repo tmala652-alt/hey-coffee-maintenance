@@ -1,6 +1,7 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { createPortal } from 'react-dom'
 import { useRouter } from 'next/navigation'
 import { Star, X, Loader2, CheckCircle } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
@@ -15,12 +16,17 @@ export default function FeedbackModal({ requestId, requestTitle, onClose }: Feed
   const router = useRouter()
   const [loading, setLoading] = useState(false)
   const [submitted, setSubmitted] = useState(false)
+  const [mounted, setMounted] = useState(false)
   const [ratings, setRatings] = useState({
     speed: 0,
     quality: 0,
     service: 0,
   })
   const [comment, setComment] = useState('')
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   const handleSubmit = async () => {
     setLoading(true)
@@ -34,7 +40,7 @@ export default function FeedbackModal({ requestId, requestTitle, onClose }: Feed
       rating_service: ratings.service || null,
       comment: comment || null,
       created_by: user!.id,
-    })
+    } as never)
 
     setLoading(false)
     if (!error) {
@@ -70,23 +76,33 @@ export default function FeedbackModal({ requestId, requestTitle, onClose }: Feed
     </div>
   )
 
-  if (submitted) {
-    return (
-      <div className="fixed inset-0 bg-black/50 z-[100] flex items-center justify-center p-4">
-        <div className="bg-white rounded-xl w-full max-w-sm p-8 text-center">
-          <div className="w-16 h-16 bg-matcha-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <CheckCircle className="h-8 w-8 text-matcha-600" />
-          </div>
-          <h2 className="text-xl font-semibold text-coffee-900 mb-2">ขอบคุณสำหรับความคิดเห็น!</h2>
-          <p className="text-coffee-500">ความคิดเห็นของคุณช่วยให้เราปรับปรุงบริการได้ดียิ่งขึ้น</p>
+  const submittedContent = (
+    <div
+      className="fixed inset-0 z-[9999] flex items-center justify-center p-4"
+      style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}
+    >
+      <div className="bg-white rounded-xl w-full max-w-sm p-8 text-center">
+        <div className="w-16 h-16 bg-matcha-100 rounded-full flex items-center justify-center mx-auto mb-4">
+          <CheckCircle className="h-8 w-8 text-matcha-600" />
         </div>
+        <h2 className="text-xl font-semibold text-coffee-900 mb-2">ขอบคุณสำหรับความคิดเห็น!</h2>
+        <p className="text-coffee-500">ความคิดเห็นของคุณช่วยให้เราปรับปรุงบริการได้ดียิ่งขึ้น</p>
       </div>
-    )
-  }
+    </div>
+  )
 
-  return (
-    <div className="fixed inset-0 bg-black/50 z-[100] flex items-center justify-center p-4">
-      <div className="bg-white rounded-xl w-full max-w-md">
+  const modalContent = (
+    <div
+      className="fixed inset-0 z-[9999] flex items-center justify-center p-4"
+      style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose()
+      }}
+    >
+      <div
+        className="bg-white rounded-xl w-full max-w-md"
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className="flex items-center justify-between p-5 border-b border-coffee-100">
           <div>
             <h2 className="text-lg font-semibold text-coffee-900">ให้คะแนนการซ่อม</h2>
@@ -167,4 +183,12 @@ export default function FeedbackModal({ requestId, requestTitle, onClose }: Feed
       </div>
     </div>
   )
+
+  if (!mounted) return null
+
+  if (submitted) {
+    return createPortal(submittedContent, document.body)
+  }
+
+  return createPortal(modalContent, document.body)
 }
