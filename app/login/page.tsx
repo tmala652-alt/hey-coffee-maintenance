@@ -81,46 +81,26 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-cream-50 via-white to-cream-100 flex overflow-hidden">
-      {/* Left Side - Decorative */}
-      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-coffee-700 via-coffee-800 to-coffee-900 relative overflow-hidden">
-        {/* Decorative circles */}
-        <div className="absolute top-20 left-20 w-72 h-72 bg-honey-500/20 rounded-full blur-3xl animate-float" />
-        <div className="absolute bottom-20 right-20 w-96 h-96 bg-coffee-500/30 rounded-full blur-3xl animate-float-delayed" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-white/5 rounded-full blur-2xl" />
-
+    <div className="min-h-screen bg-cream-50 flex">
+      {/* Left Side - Brand */}
+      <div className="hidden lg:flex lg:w-1/2 bg-coffee-800 relative">
         {/* Content */}
-        <div className="relative z-10 flex flex-col justify-center px-16 text-white">
-          <div className="w-20 h-20 bg-white/10 backdrop-blur-sm rounded-3xl flex items-center justify-center mb-8 animate-bounce-soft">
-            <Coffee className="h-10 w-10" />
+        <div className="flex flex-col justify-center px-16 text-white">
+          <div className="w-16 h-16 bg-white/10 rounded-2xl flex items-center justify-center mb-8">
+            <Coffee className="h-8 w-8" />
           </div>
-          <h1 className="text-4xl font-bold mb-4">
-            ยินดีต้อนรับกลับ!
+          <h1 className="text-3xl font-semibold mb-4">
+            ยินดีต้อนรับกลับ
           </h1>
-          <p className="text-xl text-coffee-200 mb-8 leading-relaxed">
+          <p className="text-lg text-coffee-200 mb-8 leading-relaxed">
             ระบบแจ้งซ่อมบำรุง Hey! Coffee
             <br />
             จัดการงานซ่อมได้อย่างมีประสิทธิภาพ
           </p>
-          <div className="space-y-4">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-white/10 rounded-xl flex items-center justify-center">
-                <Sparkles className="h-5 w-5 text-honey-400" />
-              </div>
-              <span className="text-coffee-200">ติดตามงานซ่อมแบบ Real-time</span>
-            </div>
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-white/10 rounded-xl flex items-center justify-center">
-                <Sparkles className="h-5 w-5 text-honey-400" />
-              </div>
-              <span className="text-coffee-200">แชทกับทีมช่างได้ทันที</span>
-            </div>
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-white/10 rounded-xl flex items-center justify-center">
-                <Sparkles className="h-5 w-5 text-honey-400" />
-              </div>
-              <span className="text-coffee-200">รายงานและวิเคราะห์ข้อมูล</span>
-            </div>
+          <div className="space-y-3 text-coffee-300 text-sm">
+            <p>• ติดตามงานซ่อมแบบ Real-time</p>
+            <p>• แชทกับทีมช่างได้ทันที</p>
+            <p>• รายงานและวิเคราะห์ข้อมูล</p>
           </div>
         </div>
       </div>
@@ -131,45 +111,45 @@ export default function LoginPage() {
           {/* Mobile Logo */}
           <div className="lg:hidden text-center mb-10">
             <Link href="/" className="inline-flex items-center gap-3">
-              <div className="w-14 h-14 bg-gradient-to-br from-coffee-600 to-coffee-800 rounded-2xl flex items-center justify-center shadow-lg shadow-coffee-700/30">
-                <Coffee className="h-8 w-8 text-white" />
+              <div className="w-12 h-12 bg-coffee-700 rounded-xl flex items-center justify-center">
+                <Coffee className="h-6 w-6 text-white" />
               </div>
               <div className="text-left">
-                <span className="text-2xl font-bold text-coffee-900 block">Hey! Coffee</span>
+                <span className="text-xl font-semibold text-coffee-900 block">Hey! Coffee</span>
                 <span className="text-sm text-coffee-500">Maintenance System</span>
               </div>
             </Link>
           </div>
 
           {/* Form Card */}
-          <div className="animate-slide-up">
-            <h2 className="text-3xl font-bold text-coffee-900 mb-2">เข้าสู่ระบบ</h2>
-            <p className="text-coffee-500 mb-8">ยินดีต้อนรับกลับ! กรุณาเข้าสู่ระบบเพื่อดำเนินการต่อ</p>
+          <div>
+            <h2 className="text-2xl font-semibold text-coffee-900 mb-2">เข้าสู่ระบบ</h2>
+            <p className="text-coffee-500 mb-8">กรุณาเข้าสู่ระบบเพื่อดำเนินการต่อ</p>
 
             {/* Google Login */}
             <button
               type="button"
               onClick={handleGoogleLogin}
               disabled={googleLoading}
-              className="w-full flex items-center justify-center gap-3 px-6 py-4 bg-white border-2 border-coffee-200 rounded-2xl hover:border-coffee-300 hover:bg-cream-50 transition-all duration-300 disabled:opacity-50 shadow-sm hover:shadow-md group"
+              className="w-full flex items-center justify-center gap-3 px-6 py-3 bg-white border border-coffee-200 rounded-lg hover:border-coffee-300 hover:bg-coffee-50 transition-colors disabled:opacity-50"
             >
               {googleLoading ? (
                 <Loader2 className="h-5 w-5 animate-spin text-coffee-500" />
               ) : (
                 <GoogleIcon className="h-5 w-5" />
               )}
-              <span className="text-coffee-700 font-semibold">
+              <span className="text-coffee-700 font-medium">
                 {googleLoading ? 'กำลังเข้าสู่ระบบ...' : 'เข้าสู่ระบบด้วย Google'}
               </span>
             </button>
 
             {/* Divider */}
-            <div className="relative my-8">
+            <div className="relative my-6">
               <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t-2 border-coffee-100"></div>
+                <div className="w-full border-t border-coffee-200"></div>
               </div>
               <div className="relative flex justify-center">
-                <span className="px-4 bg-gradient-to-br from-cream-50 via-white to-cream-100 text-coffee-400 text-sm font-medium">หรือ</span>
+                <span className="px-4 bg-cream-50 text-coffee-400 text-sm">หรือ</span>
               </div>
             </div>
 
@@ -221,8 +201,7 @@ export default function LoginPage() {
               </div>
 
               {error && (
-                <div className="bg-cherry-50 text-cherry-600 text-sm px-4 py-3 rounded-xl border border-cherry-200 flex items-center gap-2 animate-slide-down">
-                  <div className="w-2 h-2 bg-cherry-500 rounded-full" />
+                <div className="bg-cherry-50 text-cherry-600 text-sm px-4 py-3 rounded-lg border border-cherry-200">
                   {error}
                 </div>
               )}
@@ -230,42 +209,39 @@ export default function LoginPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="btn-primary w-full py-4 text-base group"
+                className="btn-primary w-full py-3"
               >
                 {loading ? (
                   <>
-                    <Loader2 className="h-5 w-5 animate-spin" />
+                    <Loader2 className="h-4 w-4 animate-spin" />
                     กำลังเข้าสู่ระบบ...
                   </>
                 ) : (
-                  <>
-                    เข้าสู่ระบบ
-                    <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
-                  </>
+                  'เข้าสู่ระบบ'
                 )}
               </button>
             </form>
 
             {/* Register Link */}
-            <p className="mt-8 text-center text-coffee-600">
+            <p className="mt-6 text-center text-coffee-600 text-sm">
               ยังไม่มีบัญชี?{' '}
-              <Link href="/register" className="font-semibold text-coffee-800 hover:text-honey-600 transition-colors">
+              <Link href="/register" className="font-medium text-coffee-800 hover:text-coffee-600">
                 สมัครสมาชิก
               </Link>
             </p>
           </div>
 
           {/* Demo Accounts */}
-          <div className="mt-10 p-6 bg-gradient-to-br from-cream-100 to-cream-50 rounded-2xl border border-coffee-100 animate-fade-in" style={{ animationDelay: '0.3s' }}>
-            <p className="text-xs text-coffee-500 text-center mb-4 font-medium">
-              🧪 บัญชีทดสอบ (Demo)
+          <div className="mt-8 p-5 bg-coffee-50 rounded-lg border border-coffee-100">
+            <p className="text-xs text-coffee-500 text-center mb-3 font-medium">
+              บัญชีทดสอบ (Demo)
             </p>
             <div className="grid grid-cols-2 gap-2">
               {[
-                { label: '👑 Admin', email: 'admin@heycoffee.com', password: 'admin123' },
-                { label: '🏪 Branch', email: 'branch@heycoffee.com', password: 'branch123' },
-                { label: '🔧 Tech', email: 'tech@heycoffee.com', password: 'tech123' },
-                { label: '🏢 Vendor', email: 'vendor@heycoffee.com', password: 'vendor123' },
+                { label: 'Admin', email: 'admin@heycoffee.com', password: 'admin123' },
+                { label: 'Branch', email: 'branch@heycoffee.com', password: 'branch123' },
+                { label: 'Tech', email: 'tech@heycoffee.com', password: 'tech123' },
+                { label: 'Vendor', email: 'vendor@heycoffee.com', password: 'vendor123' },
               ].map((account) => (
                 <button
                   key={account.label}
@@ -274,7 +250,7 @@ export default function LoginPage() {
                     setEmail(account.email)
                     setPassword(account.password)
                   }}
-                  className="px-3 py-2 text-xs font-medium text-coffee-600 bg-white rounded-xl border border-coffee-200 hover:border-coffee-300 hover:bg-cream-50 transition-all duration-200 hover:shadow-sm"
+                  className="px-3 py-2 text-xs font-medium text-coffee-600 bg-white rounded-lg border border-coffee-200 hover:border-coffee-300 hover:bg-coffee-50 transition-colors"
                 >
                   {account.label}
                 </button>

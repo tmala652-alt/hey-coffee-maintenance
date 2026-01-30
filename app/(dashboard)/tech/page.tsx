@@ -85,7 +85,7 @@ export default async function TechDashboardPage() {
       <div className="sticky top-0 z-40 bg-white border-b border-coffee-100 lg:hidden">
         <div className="flex items-center justify-between px-4 h-14">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-gradient-to-br from-coffee-600 to-coffee-800 rounded-lg flex items-center justify-center">
+            <div className="w-8 h-8 bg-coffee-700 rounded-lg flex items-center justify-center">
               <Coffee className="h-4 w-4 text-white" />
             </div>
             <span className="font-bold text-coffee-900">Hey! Coffee</span>
@@ -126,16 +126,16 @@ export default async function TechDashboardPage() {
 
         {/* Urgent Alert */}
         {urgentJobs > 0 && (
-          <div className="bg-gradient-to-r from-orange-50 to-cherry-50 border border-orange-200 rounded-xl p-4">
+          <div className="bg-cherry-50 border border-cherry-200 rounded-xl p-4">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-orange-500 rounded-lg flex items-center justify-center animate-pulse">
+              <div className="w-10 h-10 bg-cherry-500 rounded-lg flex items-center justify-center">
                 <AlertTriangle className="h-5 w-5 text-white" />
               </div>
               <div className="flex-1">
-                <p className="font-semibold text-orange-700">
+                <p className="font-semibold text-cherry-700">
                   {urgentJobs} งานใกล้ครบ SLA
                 </p>
-                <p className="text-sm text-orange-600">ต้องเร่งดำเนินการ</p>
+                <p className="text-sm text-cherry-600">ต้องเร่งดำเนินการ</p>
               </div>
             </div>
           </div>
@@ -146,7 +146,7 @@ export default async function TechDashboardPage() {
           <div>
             <div className="flex items-center justify-between mb-3">
               <h2 className="font-semibold text-coffee-900 flex items-center gap-2">
-                <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse" />
+                <div className="w-2 h-2 bg-blue-500 rounded-full" />
                 กำลังดำเนินการ
               </h2>
               <span className="text-sm text-coffee-500">{inProgressJobs.length} งาน</span>

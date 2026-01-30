@@ -3,36 +3,36 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { ArrowLeft, Loader2, Upload, X, Image as ImageIcon, Wrench, Building2, Tag, Clock, FileText, Camera, AlertCircle, Send, Sparkles, Zap, Droplets, Wind, Coffee, Snowflake, Armchair, Home, Monitor, MoreHorizontal, ArrowDown, Minus, ArrowUp, AlertTriangle, MapPin, Navigation, Video, Play } from 'lucide-react'
+import { ArrowLeft, Loader2, X, Wrench, Building2, Tag, Clock, FileText, Camera, AlertCircle, Send, Zap, Droplets, Wind, Coffee, Snowflake, Armchair, Home, Monitor, MoreHorizontal, ArrowDown, Minus, ArrowUp, AlertTriangle, MapPin, Navigation, Video, Play } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import type { Branch, Profile } from '@/types/database.types'
 import { clsx } from 'clsx'
 
 const categories = [
-  { value: 'ไฟฟ้า', icon: Zap, color: 'from-yellow-100 to-yellow-200 text-yellow-700' },
-  { value: 'ประปา', icon: Droplets, color: 'from-blue-100 to-blue-200 text-blue-700' },
-  { value: 'แอร์', icon: Wind, color: 'from-cyan-100 to-cyan-200 text-cyan-700' },
-  { value: 'เครื่องชงกาแฟ', icon: Coffee, color: 'from-coffee-100 to-coffee-200 text-coffee-700' },
-  { value: 'ตู้เย็น/ตู้แช่', icon: Snowflake, color: 'from-sky-100 to-sky-200 text-sky-700' },
-  { value: 'เฟอร์นิเจอร์', icon: Armchair, color: 'from-orange-100 to-orange-200 text-orange-700' },
-  { value: 'อาคาร/สถานที่', icon: Home, color: 'from-stone-100 to-stone-200 text-stone-700' },
-  { value: 'IT/อุปกรณ์', icon: Monitor, color: 'from-purple-100 to-purple-200 text-purple-700' },
-  { value: 'อื่นๆ', icon: MoreHorizontal, color: 'from-gray-100 to-gray-200 text-gray-700' },
+  { value: 'ไฟฟ้า', icon: Zap, color: 'bg-yellow-100 text-yellow-700' },
+  { value: 'ประปา', icon: Droplets, color: 'bg-blue-100 text-blue-700' },
+  { value: 'แอร์', icon: Wind, color: 'bg-cyan-100 text-cyan-700' },
+  { value: 'เครื่องชงกาแฟ', icon: Coffee, color: 'bg-coffee-100 text-coffee-700' },
+  { value: 'ตู้เย็น/ตู้แช่', icon: Snowflake, color: 'bg-sky-100 text-sky-700' },
+  { value: 'เฟอร์นิเจอร์', icon: Armchair, color: 'bg-orange-100 text-orange-700' },
+  { value: 'อาคาร/สถานที่', icon: Home, color: 'bg-stone-100 text-stone-700' },
+  { value: 'IT/อุปกรณ์', icon: Monitor, color: 'bg-purple-100 text-purple-700' },
+  { value: 'อื่นๆ', icon: MoreHorizontal, color: 'bg-coffee-100 text-coffee-700' },
 ]
 
 const slaOptions = [
-  { value: 4, label: '4 ชั่วโมง', desc: 'เร่งด่วนมาก', color: 'text-cherry-600' },
-  { value: 8, label: '8 ชั่วโมง', desc: 'เร่งด่วน', color: 'text-orange-600' },
-  { value: 24, label: '24 ชั่วโมง', desc: 'ปกติ', color: 'text-honey-600' },
-  { value: 48, label: '48 ชั่วโมง', desc: 'ไม่เร่ง', color: 'text-matcha-600' },
-  { value: 72, label: '72 ชั่วโมง', desc: 'ยืดหยุ่น', color: 'text-coffee-600' },
+  { value: 4, label: '4 ชม.', desc: 'เร่งด่วนมาก' },
+  { value: 8, label: '8 ชม.', desc: 'เร่งด่วน' },
+  { value: 24, label: '24 ชม.', desc: 'ปกติ' },
+  { value: 48, label: '48 ชม.', desc: 'ไม่เร่ง' },
+  { value: 72, label: '72 ชม.', desc: 'ยืดหยุ่น' },
 ]
 
 const priorityOptions = [
-  { value: 'low', label: 'ต่ำ', icon: ArrowDown, color: 'from-matcha-100 to-matcha-200 text-matcha-700 border-matcha-300' },
-  { value: 'medium', label: 'ปานกลาง', icon: Minus, color: 'from-honey-100 to-honey-200 text-honey-700 border-honey-300' },
-  { value: 'high', label: 'สูง', icon: ArrowUp, color: 'from-orange-100 to-orange-200 text-orange-700 border-orange-300' },
-  { value: 'critical', label: 'เร่งด่วน', icon: AlertTriangle, color: 'from-cherry-100 to-cherry-200 text-cherry-700 border-cherry-300 animate-pulse' },
+  { value: 'low', label: 'ต่ำ', icon: ArrowDown, color: 'bg-matcha-100 text-matcha-700 border-matcha-200' },
+  { value: 'medium', label: 'ปานกลาง', icon: Minus, color: 'bg-honey-100 text-honey-700 border-honey-200' },
+  { value: 'high', label: 'สูง', icon: ArrowUp, color: 'bg-orange-100 text-orange-700 border-orange-200' },
+  { value: 'critical', label: 'เร่งด่วน', icon: AlertTriangle, color: 'bg-cherry-100 text-cherry-700 border-cherry-200' },
 ]
 
 export default function NewRequestPage() {
@@ -201,46 +201,36 @@ export default function NewRequestPage() {
   }
 
   const isAdmin = profile?.role === 'admin'
-  const selectedCategory = categories.find(c => c.value === form.category)
 
   return (
-    <div className="max-w-3xl mx-auto space-y-6 animate-fade-in">
+    <div className="max-w-3xl mx-auto space-y-6">
       {/* Header */}
       <div className="flex items-center gap-4">
         <Link
           href="/requests"
-          className="p-2.5 hover:bg-coffee-100 rounded-xl transition-all duration-300 hover:scale-105 group"
+          className="p-2 hover:bg-coffee-100 rounded-lg transition-colors"
         >
-          <ArrowLeft className="h-6 w-6 text-coffee-600 transition-transform group-hover:-translate-x-1" />
+          <ArrowLeft className="h-5 w-5 text-coffee-600" />
         </Link>
-        <div className="flex items-center gap-4 flex-1">
-          <div className="relative group">
-            <div className="w-14 h-14 bg-gradient-to-br from-amber-400 via-orange-500 to-red-500 rounded-2xl flex items-center justify-center shadow-xl shadow-orange-500/30 transition-all duration-300 group-hover:shadow-2xl group-hover:shadow-orange-500/40 group-hover:scale-105">
-              <Wrench className="h-7 w-7 text-white" />
-            </div>
-            <div className="absolute -inset-1 bg-orange-500/20 rounded-2xl blur opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-          </div>
-          <div>
-            <h1 className="text-3xl font-bold text-coffee-900">แจ้งซ่อมใหม่</h1>
-            <p className="text-coffee-500 mt-1 flex items-center gap-2">
-              <Sparkles className="h-4 w-4 text-honey-500" />
-              กรอกรายละเอียดปัญหาที่ต้องการแจ้งซ่อม
-            </p>
-          </div>
+        <div>
+          <h1 className="text-2xl font-semibold text-coffee-900">แจ้งซ่อมใหม่</h1>
+          <p className="text-coffee-500 text-sm mt-0.5">
+            กรอกรายละเอียดปัญหาที่ต้องการแจ้งซ่อม
+          </p>
         </div>
       </div>
 
       {/* Form */}
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <form onSubmit={handleSubmit} className="space-y-5">
         {/* Branch & Location Selection */}
-        <div className="card-glass p-6">
+        <div className="card p-5">
           <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 bg-gradient-to-br from-matcha-100 to-matcha-200 rounded-xl flex items-center justify-center">
+            <div className="w-9 h-9 bg-matcha-100 rounded-lg flex items-center justify-center">
               <MapPin className="h-5 w-5 text-matcha-700" />
             </div>
             <div>
-              <h3 className="font-semibold text-coffee-900">สถานที่</h3>
-              <p className="text-sm text-coffee-500">เลือกสาขาและตำแหน่งที่ต้องการซ่อม</p>
+              <h3 className="font-medium text-coffee-900">สถานที่</h3>
+              <p className="text-xs text-coffee-500">เลือกสาขาและตำแหน่งที่ต้องการซ่อม</p>
             </div>
           </div>
 
@@ -314,7 +304,7 @@ export default function NewRequestPage() {
         </div>
 
         {/* Title */}
-        <div className="card-glass p-6">
+        <div className="card p-5">
           <label className="label flex items-center gap-2">
             <FileText className="h-4 w-4" />
             หัวข้อ *
@@ -323,19 +313,19 @@ export default function NewRequestPage() {
             type="text"
             value={form.title}
             onChange={(e) => setForm({ ...form, title: e.target.value })}
-            className="input text-lg"
+            className="input"
             placeholder="เช่น แอร์ไม่เย็น, ก๊อกน้ำรั่ว"
             required
           />
         </div>
 
         {/* Category */}
-        <div className="card-glass p-6">
-          <label className="label flex items-center gap-2 mb-4">
+        <div className="card p-5">
+          <label className="label flex items-center gap-2 mb-3">
             <Tag className="h-4 w-4" />
             ประเภทงาน *
           </label>
-          <div className="grid grid-cols-3 sm:grid-cols-5 gap-3">
+          <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
             {categories.map((cat) => {
               const Icon = cat.icon
               return (
@@ -344,13 +334,13 @@ export default function NewRequestPage() {
                   type="button"
                   onClick={() => setForm({ ...form, category: cat.value })}
                   className={clsx(
-                    'flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all duration-300',
+                    'flex flex-col items-center gap-2 p-3 rounded-lg border transition-colors',
                     form.category === cat.value
-                      ? `bg-gradient-to-br ${cat.color} border-current shadow-lg`
-                      : 'bg-white text-coffee-600 border-coffee-200 hover:border-coffee-300 hover:bg-cream-50'
+                      ? `${cat.color} border-current`
+                      : 'bg-white text-coffee-600 border-coffee-200 hover:border-coffee-300 hover:bg-coffee-50'
                   )}
                 >
-                  <Icon className="h-6 w-6" />
+                  <Icon className="h-5 w-5" />
                   <span className="text-xs font-medium text-center">{cat.value}</span>
                 </button>
               )
@@ -359,12 +349,12 @@ export default function NewRequestPage() {
         </div>
 
         {/* Priority */}
-        <div className="card-glass p-6">
-          <label className="label flex items-center gap-2 mb-4">
+        <div className="card p-5">
+          <label className="label flex items-center gap-2 mb-3">
             <AlertCircle className="h-4 w-4" />
             ความสำคัญ *
           </label>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
             {priorityOptions.map((opt) => {
               const Icon = opt.icon
               return (
@@ -373,9 +363,9 @@ export default function NewRequestPage() {
                   type="button"
                   onClick={() => setForm({ ...form, priority: opt.value as typeof form.priority })}
                   className={clsx(
-                    'flex items-center justify-center gap-2 px-4 py-3 rounded-xl border-2 text-sm font-semibold transition-all duration-300',
+                    'flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg border text-sm font-medium transition-colors',
                     form.priority === opt.value
-                      ? `bg-gradient-to-r ${opt.color} shadow-lg`
+                      ? `${opt.color}`
                       : 'bg-white text-coffee-600 border-coffee-200 hover:border-coffee-300'
                   )}
                 >
@@ -388,13 +378,13 @@ export default function NewRequestPage() {
         </div>
 
         {/* SLA */}
-        <div className="card-glass p-6">
+        <div className="card p-5">
           <label className="label flex items-center gap-2 mb-2">
             <Clock className="h-4 w-4" />
             ระยะเวลาดำเนินการ (SLA)
           </label>
-          <p className="text-sm text-coffee-500 mb-4">
-            SLA (Service Level Agreement) คือระยะเวลาที่กำหนดให้งานต้องเสร็จสิ้น หากเลือกเวลาสั้น งานจะถูกจัดลำดับความสำคัญสูงขึ้น
+          <p className="text-xs text-coffee-500 mb-4">
+            SLA คือระยะเวลาที่กำหนดให้งานต้องเสร็จสิ้น หากเลือกเวลาสั้น งานจะถูกจัดลำดับความสำคัญสูงขึ้น
           </p>
 
           {/* SLA Mode Selector */}
@@ -405,9 +395,9 @@ export default function NewRequestPage() {
                 type="button"
                 onClick={() => setForm({ ...form, sla_mode: 'calendar' })}
                 className={clsx(
-                  'flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg border-2 transition-all',
+                  'flex-1 flex items-center justify-center gap-2 px-3 py-2 rounded-lg border text-sm transition-colors',
                   form.sla_mode === 'calendar'
-                    ? 'bg-matcha-50 border-matcha-500 text-matcha-700'
+                    ? 'bg-matcha-50 border-matcha-300 text-matcha-700'
                     : 'bg-white border-coffee-200 text-coffee-500 hover:border-coffee-300'
                 )}
               >
@@ -418,9 +408,9 @@ export default function NewRequestPage() {
                 type="button"
                 onClick={() => setForm({ ...form, sla_mode: 'working_hours' })}
                 className={clsx(
-                  'flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg border-2 transition-all',
+                  'flex-1 flex items-center justify-center gap-2 px-3 py-2 rounded-lg border text-sm transition-colors',
                   form.sla_mode === 'working_hours'
-                    ? 'bg-honey-50 border-honey-500 text-honey-700'
+                    ? 'bg-honey-50 border-honey-300 text-honey-700'
                     : 'bg-white border-coffee-200 text-coffee-500 hover:border-coffee-300'
                 )}
               >
@@ -442,15 +432,13 @@ export default function NewRequestPage() {
                 type="button"
                 onClick={() => setForm({ ...form, sla_hours: opt.value })}
                 className={clsx(
-                  'flex flex-col items-center p-3 rounded-xl border-2 transition-all duration-300',
+                  'flex flex-col items-center p-2.5 rounded-lg border text-sm transition-colors',
                   form.sla_hours === opt.value
-                    ? 'bg-coffee-700 text-white border-coffee-700 shadow-lg shadow-coffee-700/30'
+                    ? 'bg-coffee-700 text-white border-coffee-700'
                     : 'bg-white text-coffee-600 border-coffee-200 hover:border-coffee-300'
                 )}
               >
-                <span className={clsx('text-lg font-bold', form.sla_hours !== opt.value && opt.color)}>
-                  {opt.label}
-                </span>
+                <span className="font-semibold">{opt.label}</span>
                 <span className="text-xs opacity-80">{opt.desc}</span>
               </button>
             ))}
@@ -458,7 +446,7 @@ export default function NewRequestPage() {
         </div>
 
         {/* Description */}
-        <div className="card-glass p-6">
+        <div className="card p-5">
           <label className="label flex items-center gap-2">
             <FileText className="h-4 w-4" />
             รายละเอียด
@@ -466,35 +454,35 @@ export default function NewRequestPage() {
           <textarea
             value={form.description}
             onChange={(e) => setForm({ ...form, description: e.target.value })}
-            className="input min-h-[140px]"
+            className="input min-h-[120px]"
             placeholder="อธิบายปัญหาเพิ่มเติม เช่น ตำแหน่ง อาการ ความรุนแรง..."
           />
         </div>
 
         {/* Images & Videos */}
-        <div className="card-glass p-6">
-          <label className="label flex items-center gap-2 mb-4">
+        <div className="card p-5">
+          <label className="label flex items-center gap-2 mb-3">
             <Camera className="h-4 w-4" />
             รูปภาพ / วิดีโอประกอบ
           </label>
           <div className="space-y-4">
             {/* Upload Button */}
-            <label className="flex flex-col items-center justify-center gap-3 px-4 py-10 border-2 border-dashed border-coffee-300 rounded-2xl cursor-pointer hover:border-honey-500 hover:bg-honey-50/50 transition-all duration-300 group">
+            <label className="flex flex-col items-center justify-center gap-3 px-4 py-8 border border-dashed border-coffee-300 rounded-lg cursor-pointer hover:border-coffee-400 hover:bg-coffee-50 transition-colors">
               {uploading ? (
-                <Loader2 className="h-8 w-8 animate-spin text-coffee-500" />
+                <Loader2 className="h-6 w-6 animate-spin text-coffee-500" />
               ) : (
                 <>
                   <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 bg-gradient-to-br from-cream-100 to-cream-200 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
-                      <Camera className="h-6 w-6 text-coffee-500" />
+                    <div className="w-10 h-10 bg-coffee-100 rounded-lg flex items-center justify-center">
+                      <Camera className="h-5 w-5 text-coffee-600" />
                     </div>
-                    <div className="w-12 h-12 bg-gradient-to-br from-purple-100 to-purple-200 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
-                      <Video className="h-6 w-6 text-purple-600" />
+                    <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
+                      <Video className="h-5 w-5 text-purple-600" />
                     </div>
                   </div>
                   <div className="text-center">
-                    <span className="text-coffee-700 font-medium block">คลิกเพื่ออัพโหลดรูปภาพหรือวิดีโอ</span>
-                    <span className="text-sm text-coffee-400">รูปภาพ: JPG, PNG (สูงสุด 5MB) | วิดีโอ: MP4, MOV (สูงสุด 50MB)</span>
+                    <span className="text-coffee-700 font-medium text-sm block">คลิกเพื่ออัพโหลดรูปภาพหรือวิดีโอ</span>
+                    <span className="text-xs text-coffee-400">รูปภาพ: JPG, PNG (สูงสุด 5MB) | วิดีโอ: MP4, MOV (สูงสุด 50MB)</span>
                   </div>
                 </>
               )}
@@ -510,28 +498,28 @@ export default function NewRequestPage() {
 
             {/* Preview */}
             {media.length > 0 && (
-              <div className="grid grid-cols-3 sm:grid-cols-4 gap-4">
-                {media.map((m, index) => (
-                  <div key={m.path} className="relative group animate-scale-in" style={{ animationDelay: `${index * 50}ms` }}>
+              <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
+                {media.map((m) => (
+                  <div key={m.path} className="relative group">
                     {m.type === 'image' ? (
                       <img
                         src={m.url}
                         alt=""
-                        className="w-full h-28 object-cover rounded-xl shadow-md"
+                        className="w-full h-24 object-cover rounded-lg"
                       />
                     ) : (
-                      <div className="relative w-full h-28 bg-gradient-to-br from-purple-100 to-purple-200 rounded-xl shadow-md flex items-center justify-center">
+                      <div className="relative w-full h-24 bg-purple-100 rounded-lg flex items-center justify-center">
                         <video
                           src={m.url}
-                          className="absolute inset-0 w-full h-full object-cover rounded-xl"
+                          className="absolute inset-0 w-full h-full object-cover rounded-lg"
                           muted
                         />
-                        <div className="absolute inset-0 bg-black/30 rounded-xl flex items-center justify-center">
-                          <div className="w-10 h-10 bg-white/90 rounded-full flex items-center justify-center">
-                            <Play className="h-5 w-5 text-purple-600 ml-0.5" />
+                        <div className="absolute inset-0 bg-black/30 rounded-lg flex items-center justify-center">
+                          <div className="w-8 h-8 bg-white/90 rounded-full flex items-center justify-center">
+                            <Play className="h-4 w-4 text-purple-600 ml-0.5" />
                           </div>
                         </div>
-                        <div className="absolute bottom-1 left-1 px-1.5 py-0.5 bg-purple-600 rounded text-white text-xs font-medium">
+                        <div className="absolute bottom-1 left-1 px-1.5 py-0.5 bg-purple-600 rounded text-white text-[10px] font-medium">
                           วิดีโอ
                         </div>
                       </div>
@@ -539,9 +527,9 @@ export default function NewRequestPage() {
                     <button
                       type="button"
                       onClick={() => removeMedia(m.path)}
-                      className="absolute -top-2 -right-2 p-1.5 bg-cherry-500 rounded-full text-white shadow-lg opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-cherry-600 hover:scale-110"
+                      className="absolute -top-1.5 -right-1.5 p-1 bg-cherry-500 rounded-full text-white opacity-0 group-hover:opacity-100 transition-opacity"
                     >
-                      <X className="h-4 w-4" />
+                      <X className="h-3 w-3" />
                     </button>
                   </div>
                 ))}
@@ -551,25 +539,24 @@ export default function NewRequestPage() {
         </div>
 
         {/* Submit */}
-        <div className="flex gap-4 pt-2">
-          <Link href="/requests" className="btn-secondary flex-1 py-4">
+        <div className="flex gap-3 pt-2">
+          <Link href="/requests" className="btn-secondary flex-1 py-3">
             ยกเลิก
           </Link>
           <button
             type="submit"
             disabled={loading || !form.title || !form.category || (!form.branch_id && !profile?.branch_id)}
-            className="btn-primary flex-1 py-4 group"
+            className="btn-primary flex-1 py-3"
           >
             {loading ? (
               <>
-                <Loader2 className="h-5 w-5 animate-spin" />
+                <Loader2 className="h-4 w-4 animate-spin" />
                 กำลังบันทึก...
               </>
             ) : (
               <>
-                <Send className="h-5 w-5 transition-transform group-hover:translate-x-1" />
+                <Send className="h-4 w-4" />
                 ส่งแจ้งซ่อม
-                <Sparkles className="h-4 w-4 text-honey-300" />
               </>
             )}
           </button>

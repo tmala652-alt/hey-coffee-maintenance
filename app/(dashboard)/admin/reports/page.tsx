@@ -95,100 +95,84 @@ export default async function ReportsPage() {
   ]
 
   return (
-    <div className="space-y-8 animate-fade-in">
+    <div className="space-y-6">
       {/* Header */}
       <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-coffee-900 flex items-center gap-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-purple-700 rounded-xl flex items-center justify-center shadow-lg shadow-purple-700/30">
-              <BarChart3 className="h-5 w-5 text-white" />
-            </div>
-            รายงาน
-          </h1>
-          <p className="text-coffee-600 mt-1">ภาพรวมงานแจ้งซ่อมทั้งหมดในระบบ</p>
+          <h1 className="text-2xl font-semibold text-coffee-900">รายงาน</h1>
+          <p className="text-coffee-500 mt-1">ภาพรวมงานแจ้งซ่อมทั้งหมดในระบบ</p>
         </div>
         <ExportButton />
       </div>
 
       {/* Main Stats */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
-        <div className="stat-card group">
-          <div className="flex items-center gap-4">
-            <div className="icon-container bg-gradient-to-br from-coffee-100 to-coffee-200">
-              <BarChart3 className="h-6 w-6 text-coffee-700" />
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="card p-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-coffee-100 rounded-lg flex items-center justify-center">
+              <BarChart3 className="h-5 w-5 text-coffee-600" />
             </div>
-            <div className="relative z-10">
-              <p className="text-3xl font-bold text-coffee-900">{totalRequests}</p>
-              <p className="text-sm text-coffee-500 font-medium">งานทั้งหมด</p>
-            </div>
-          </div>
-        </div>
-
-        <div className="stat-card group">
-          <div className="flex items-center gap-4">
-            <div className="icon-container bg-gradient-to-br from-matcha-100 to-matcha-200">
-              <CheckCircle className="h-6 w-6 text-matcha-700" />
-            </div>
-            <div className="relative z-10">
-              <p className="text-3xl font-bold text-coffee-900">{completedRequests}</p>
-              <p className="text-sm text-coffee-500 font-medium">เสร็จสิ้น</p>
+            <div>
+              <p className="text-2xl font-semibold text-coffee-900">{totalRequests}</p>
+              <p className="text-sm text-coffee-500">งานทั้งหมด</p>
             </div>
           </div>
         </div>
 
-        <div className="stat-card group">
-          <div className="flex items-center gap-4">
-            <div className="icon-container bg-gradient-to-br from-honey-100 to-honey-200">
-              <Target className="h-6 w-6 text-honey-700" />
+        <div className="card p-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-matcha-100 rounded-lg flex items-center justify-center">
+              <CheckCircle className="h-5 w-5 text-matcha-600" />
             </div>
-            <div className="relative z-10">
-              <p className="text-3xl font-bold text-coffee-900">{slaCompliance}%</p>
-              <p className="text-sm text-coffee-500 font-medium">SLA Compliance</p>
+            <div>
+              <p className="text-2xl font-semibold text-coffee-900">{completedRequests}</p>
+              <p className="text-sm text-coffee-500">เสร็จสิ้น</p>
             </div>
           </div>
         </div>
 
-        <div className="stat-card group">
-          <div className="flex items-center gap-4">
-            <div className="icon-container bg-gradient-to-br from-blue-100 to-blue-200">
-              <Banknote className="h-6 w-6 text-blue-700" />
+        <div className="card p-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-honey-100 rounded-lg flex items-center justify-center">
+              <Target className="h-5 w-5 text-honey-600" />
             </div>
-            <div className="relative z-10">
-              <p className="text-3xl font-bold text-coffee-900">
-                {totalCost.toLocaleString()}
-              </p>
-              <p className="text-sm text-coffee-500 font-medium">ค่าใช้จ่าย (บาท)</p>
+            <div>
+              <p className="text-2xl font-semibold text-coffee-900">{slaCompliance}%</p>
+              <p className="text-sm text-coffee-500">SLA Compliance</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="card p-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center">
+              <Banknote className="h-5 w-5 text-blue-600" />
+            </div>
+            <div>
+              <p className="text-2xl font-semibold text-coffee-900">{totalCost.toLocaleString()}</p>
+              <p className="text-sm text-coffee-500">ค่าใช้จ่าย (บาท)</p>
             </div>
           </div>
         </div>
       </div>
 
       {/* Priority Breakdown */}
-      <div className="card-glass p-6">
-        <div className="flex items-center gap-3 mb-6">
-          <div className="w-10 h-10 bg-gradient-to-br from-orange-100 to-orange-200 rounded-xl flex items-center justify-center">
-            <PieChart className="h-5 w-5 text-orange-700" />
-          </div>
-          <h2 className="text-xl font-bold text-coffee-900">แยกตามความสำคัญ</h2>
-        </div>
+      <div className="card p-5">
+        <h2 className="font-semibold text-coffee-900 mb-4">แยกตามความสำคัญ</h2>
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           {priorityConfig.map((priority) => {
             const Icon = priority.icon
             const count = byPriority[priority.key as keyof typeof byPriority]
             const percentage = totalRequests > 0 ? ((count / totalRequests) * 100).toFixed(0) : 0
             return (
-              <div
-                key={priority.key}
-                className={`relative p-5 rounded-2xl bg-gradient-to-br ${priority.color} overflow-hidden group hover:shadow-lg transition-all duration-300`}
-              >
-                <div className="absolute top-0 right-0 w-20 h-20 bg-white/20 rounded-full blur-2xl -mr-10 -mt-10 group-hover:scale-150 transition-transform duration-500" />
-                <div className="relative z-10">
-                  <Icon className="h-6 w-6 mb-3 opacity-80" />
-                  <p className="text-4xl font-bold mb-1">{count}</p>
-                  <p className="text-sm font-medium opacity-80">{priority.label}</p>
-                  <div className="mt-3 h-1.5 bg-white/30 rounded-full overflow-hidden">
-                    <div className={`h-full ${priority.bgColor} rounded-full transition-all duration-500`} style={{ width: `${percentage}%` }} />
-                  </div>
+              <div key={priority.key} className={`p-4 rounded-lg ${priority.color.replace('from-', 'bg-').split(' ')[0]}`}>
+                <div className="flex items-center gap-2 mb-2">
+                  <Icon className="h-4 w-4" />
+                  <span className="text-sm font-medium">{priority.label}</span>
+                </div>
+                <p className="text-2xl font-semibold">{count}</p>
+                <div className="mt-2 h-1.5 bg-white/50 rounded-full overflow-hidden">
+                  <div className={`h-full ${priority.bgColor} rounded-full`} style={{ width: `${percentage}%` }} />
                 </div>
               </div>
             )
@@ -196,29 +180,21 @@ export default async function ReportsPage() {
         </div>
       </div>
 
-      <div className="grid lg:grid-cols-2 gap-6">
+      <div className="grid lg:grid-cols-2 gap-4">
         {/* By Category */}
-        <div className="card-glass p-6">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="w-10 h-10 bg-gradient-to-br from-coffee-100 to-coffee-200 rounded-xl flex items-center justify-center">
-              <Tag className="h-5 w-5 text-coffee-700" />
-            </div>
-            <h2 className="text-xl font-bold text-coffee-900">แยกตามประเภท</h2>
-          </div>
-          <div className="space-y-4">
-            {sortedCategories.slice(0, 8).map(([category, count], index) => {
+        <div className="card p-5">
+          <h2 className="font-semibold text-coffee-900 mb-4">แยกตามประเภท</h2>
+          <div className="space-y-3">
+            {sortedCategories.slice(0, 8).map(([category, count]) => {
               const percentage = totalRequests > 0 ? (count / totalRequests) * 100 : 0
               return (
-                <div key={category} className="group" style={{ animationDelay: `${index * 50}ms` }}>
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-semibold text-coffee-700">{category}</span>
-                    <span className="text-sm font-bold text-coffee-900 bg-coffee-100 px-2 py-0.5 rounded-lg">{count}</span>
+                <div key={category}>
+                  <div className="flex items-center justify-between mb-1.5">
+                    <span className="text-sm text-coffee-700">{category}</span>
+                    <span className="text-sm font-medium text-coffee-900">{count}</span>
                   </div>
-                  <div className="h-3 bg-cream-100 rounded-full overflow-hidden">
-                    <div
-                      className="h-full bg-gradient-to-r from-coffee-400 to-coffee-600 rounded-full transition-all duration-500 group-hover:from-coffee-500 group-hover:to-coffee-700"
-                      style={{ width: `${percentage}%` }}
-                    />
+                  <div className="h-2 bg-coffee-100 rounded-full overflow-hidden">
+                    <div className="h-full bg-coffee-500 rounded-full" style={{ width: `${percentage}%` }} />
                   </div>
                 </div>
               )
@@ -227,27 +203,19 @@ export default async function ReportsPage() {
         </div>
 
         {/* By Branch */}
-        <div className="card-glass p-6">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="w-10 h-10 bg-gradient-to-br from-honey-100 to-honey-200 rounded-xl flex items-center justify-center">
-              <Building2 className="h-5 w-5 text-honey-700" />
-            </div>
-            <h2 className="text-xl font-bold text-coffee-900">แยกตามสาขา</h2>
-          </div>
-          <div className="space-y-4">
-            {sortedBranches.slice(0, 8).map(([branch, count], index) => {
+        <div className="card p-5">
+          <h2 className="font-semibold text-coffee-900 mb-4">แยกตามสาขา</h2>
+          <div className="space-y-3">
+            {sortedBranches.slice(0, 8).map(([branch, count]) => {
               const percentage = totalRequests > 0 ? (count / totalRequests) * 100 : 0
               return (
-                <div key={branch} className="group" style={{ animationDelay: `${index * 50}ms` }}>
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-semibold text-coffee-700">{branch}</span>
-                    <span className="text-sm font-bold text-coffee-900 bg-honey-100 px-2 py-0.5 rounded-lg">{count}</span>
+                <div key={branch}>
+                  <div className="flex items-center justify-between mb-1.5">
+                    <span className="text-sm text-coffee-700">{branch}</span>
+                    <span className="text-sm font-medium text-coffee-900">{count}</span>
                   </div>
-                  <div className="h-3 bg-cream-100 rounded-full overflow-hidden">
-                    <div
-                      className="h-full bg-gradient-to-r from-honey-400 to-honey-600 rounded-full transition-all duration-500 group-hover:from-honey-500 group-hover:to-honey-700"
-                      style={{ width: `${percentage}%` }}
-                    />
+                  <div className="h-2 bg-honey-100 rounded-full overflow-hidden">
+                    <div className="h-full bg-honey-500 rounded-full" style={{ width: `${percentage}%` }} />
                   </div>
                 </div>
               )
@@ -257,41 +225,34 @@ export default async function ReportsPage() {
       </div>
 
       {/* Status Summary */}
-      <div className="card-glass p-6">
-        <div className="flex items-center gap-3 mb-6">
-          <div className="w-10 h-10 bg-gradient-to-br from-blue-100 to-blue-200 rounded-xl flex items-center justify-center">
-            <Clock className="h-5 w-5 text-blue-700" />
-          </div>
-          <h2 className="text-xl font-bold text-coffee-900">สรุปสถานะงาน</h2>
-        </div>
+      <div className="card p-5">
+        <h2 className="font-semibold text-coffee-900 mb-4">สรุปสถานะงาน</h2>
         <div className="grid grid-cols-3 gap-4">
-          <div className="text-center p-5 bg-gradient-to-br from-cream-100 to-cream-200 rounded-2xl">
-            <p className="text-3xl font-bold text-coffee-700">{pendingRequests}</p>
-            <p className="text-sm font-medium text-coffee-600 mt-1">รอดำเนินการ</p>
+          <div className="text-center p-4 bg-coffee-50 rounded-lg">
+            <p className="text-2xl font-semibold text-coffee-700">{pendingRequests}</p>
+            <p className="text-sm text-coffee-500 mt-1">รอดำเนินการ</p>
           </div>
-          <div className="text-center p-5 bg-gradient-to-br from-blue-100 to-blue-200 rounded-2xl">
-            <p className="text-3xl font-bold text-blue-700">{inProgressRequests}</p>
-            <p className="text-sm font-medium text-blue-600 mt-1">กำลังดำเนินการ</p>
+          <div className="text-center p-4 bg-blue-50 rounded-lg">
+            <p className="text-2xl font-semibold text-blue-700">{inProgressRequests}</p>
+            <p className="text-sm text-blue-600 mt-1">กำลังดำเนินการ</p>
           </div>
-          <div className="text-center p-5 bg-gradient-to-br from-matcha-100 to-matcha-200 rounded-2xl">
-            <p className="text-3xl font-bold text-matcha-700">{completedRequests}</p>
-            <p className="text-sm font-medium text-matcha-600 mt-1">เสร็จสิ้น</p>
+          <div className="text-center p-4 bg-matcha-100 rounded-lg">
+            <p className="text-2xl font-semibold text-matcha-700">{completedRequests}</p>
+            <p className="text-sm text-matcha-600 mt-1">เสร็จสิ้น</p>
           </div>
         </div>
       </div>
 
       {/* SLA Alert */}
       {slaBreach > 0 && (
-        <div className="bg-gradient-to-r from-cherry-50 to-cherry-100 border-2 border-cherry-200 rounded-2xl p-6 animate-slide-down">
+        <div className="card border-l-4 border-l-cherry-500 p-4">
           <div className="flex items-center gap-4">
-            <div className="w-14 h-14 bg-cherry-500 rounded-xl flex items-center justify-center flex-shrink-0 animate-pulse">
-              <AlertTriangle className="h-7 w-7 text-white" />
+            <div className="w-10 h-10 bg-cherry-100 rounded-lg flex items-center justify-center">
+              <AlertTriangle className="h-5 w-5 text-cherry-600" />
             </div>
             <div>
-              <p className="font-bold text-cherry-700 text-lg">
-                มี {slaBreach} งานที่เกิน SLA
-              </p>
-              <p className="text-sm text-cherry-600">
+              <p className="font-semibold text-coffee-900">มี {slaBreach} งานที่เกิน SLA</p>
+              <p className="text-sm text-coffee-500">
                 จาก {slaTotal} งานที่เสร็จสิ้นแล้ว ({((slaBreach/slaTotal)*100).toFixed(1)}%)
               </p>
             </div>
