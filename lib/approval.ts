@@ -4,11 +4,15 @@ import {
   ApprovalLog,
   ApprovalThreshold,
   ApprovalStatus,
-  RoleEnum
+  RoleEnum,
+  Database
 } from '@/types/database.types'
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type AnySupabaseClient = SupabaseClient<any, any, any>
+
 export interface SubmitApprovalParams {
-  supabase: SupabaseClient
+  supabase: AnySupabaseClient
   recordType: 'invoice' | 'expense' | 'disbursement'
   recordId: string
   amount: number
@@ -18,7 +22,7 @@ export interface SubmitApprovalParams {
 }
 
 export interface ProcessApprovalParams {
-  supabase: SupabaseClient
+  supabase: AnySupabaseClient
   approvalRequestId: string
   action: 'approved' | 'rejected'
   approverId: string
@@ -33,7 +37,7 @@ export interface ApprovalResult {
 
 // Get applicable thresholds for an amount
 export async function getApplicableThresholds(
-  supabase: SupabaseClient,
+  supabase: AnySupabaseClient,
   organizationId: string,
   amount: number
 ): Promise<ApprovalThreshold[]> {
@@ -222,7 +226,7 @@ export async function processApproval(
 
 // Update the source record status
 async function updateSourceRecordStatus(
-  supabase: SupabaseClient,
+  supabase: AnySupabaseClient,
   request: ApprovalRequest,
   status: ApprovalStatus
 ) {
@@ -242,7 +246,7 @@ async function updateSourceRecordStatus(
 
 // Notify approvers based on level
 async function notifyApprovers(
-  supabase: SupabaseClient,
+  supabase: AnySupabaseClient,
   approvalRequestId: string,
   level: number,
   organizationId: string,
@@ -260,7 +264,7 @@ async function notifyApprovers(
   if (!thresholds?.length) return
 
   // Get users to notify
-  const roles = [...new Set(thresholds.map(t => t.approver_role))]
+  const roles = Array.from(new Set(thresholds.map(t => t.approver_role)))
   const specificIds = thresholds
     .filter(t => t.approver_id)
     .map(t => t.approver_id)
@@ -286,7 +290,7 @@ async function notifyApprovers(
 
 // Notify the requester about approval result
 async function notifyRequester(
-  supabase: SupabaseClient,
+  supabase: AnySupabaseClient,
   request: ApprovalRequest,
   status: 'approved' | 'rejected',
   comments?: string
@@ -306,7 +310,7 @@ async function notifyRequester(
 
 // Get pending approvals for a user
 export async function getPendingApprovalsForUser(
-  supabase: SupabaseClient,
+  supabase: AnySupabaseClient,
   userId: string,
   organizationId: string
 ): Promise<ApprovalRequest[]> {
@@ -356,7 +360,7 @@ export async function getPendingApprovalsForUser(
 
 // Check if user can approve a request
 export async function canUserApprove(
-  supabase: SupabaseClient,
+  supabase: AnySupabaseClient,
   userId: string,
   request: ApprovalRequest
 ): Promise<boolean> {

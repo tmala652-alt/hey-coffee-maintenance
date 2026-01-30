@@ -2,11 +2,15 @@ import { SupabaseClient } from '@supabase/supabase-js'
 import {
   DisbursementRequest,
   DisbursementItem,
-  DisbursementStatus
+  DisbursementStatus,
+  Database
 } from '@/types/database.types'
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type AnySupabaseClient = SupabaseClient<any, any, any>
+
 export interface CreateDisbursementParams {
-  supabase: SupabaseClient
+  supabase: AnySupabaseClient
   organizationId: string
   payeeType: 'vendor' | 'employee'
   vendorId?: string
@@ -33,7 +37,7 @@ export interface DisbursementResult {
 
 // Generate document number
 export async function generateDocumentNumber(
-  supabase: SupabaseClient,
+  supabase: AnySupabaseClient,
   organizationId: string
 ): Promise<string> {
   const today = new Date()
@@ -155,7 +159,7 @@ export async function createDisbursement(
 
 // Update disbursement status
 export async function updateDisbursementStatus(
-  supabase: SupabaseClient,
+  supabase: AnySupabaseClient,
   disbursementId: string,
   status: DisbursementStatus,
   paidReference?: string
@@ -187,7 +191,7 @@ export async function updateDisbursementStatus(
 
 // Submit disbursement to accounting
 export async function submitDisbursement(
-  supabase: SupabaseClient,
+  supabase: AnySupabaseClient,
   disbursementId: string
 ): Promise<DisbursementResult> {
   try {
@@ -228,7 +232,7 @@ export async function submitDisbursement(
 
 // Get disbursements with filters
 export async function getDisbursements(
-  supabase: SupabaseClient,
+  supabase: AnySupabaseClient,
   organizationId: string,
   filters?: {
     status?: DisbursementStatus
@@ -274,7 +278,7 @@ export async function getDisbursements(
 
 // Get approved invoices available for disbursement
 export async function getApprovedInvoicesForDisbursement(
-  supabase: SupabaseClient,
+  supabase: AnySupabaseClient,
   organizationId: string,
   vendorId?: string
 ): Promise<{ id: string; invoice_number: string; total_amount: number; vendor_id: string }[]> {
@@ -349,7 +353,7 @@ export function generateDisbursementPDFData(
 
 // Get disbursement summary
 export async function getDisbursementSummary(
-  supabase: SupabaseClient,
+  supabase: AnySupabaseClient,
   organizationId: string,
   startDate?: string,
   endDate?: string

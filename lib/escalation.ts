@@ -1,7 +1,10 @@
 import { SupabaseClient } from '@supabase/supabase-js'
 import { calculateSLAStatus } from './sla'
 import { notifySLAWarning } from './notifications'
-import type { SLAStatus, EscalationRule, Profile } from '@/types/database.types'
+import type { SLAStatus, EscalationRule, Profile, Database } from '@/types/database.types'
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type AnySupabaseClient = SupabaseClient<any, any, any>
 
 export interface EscalationResult {
   requestId: string
@@ -15,7 +18,7 @@ export interface EscalationResult {
  * Check and escalate a single request based on SLA status
  */
 export async function checkAndEscalate(
-  supabase: SupabaseClient,
+  supabase: AnySupabaseClient,
   request: {
     id: string
     title: string
@@ -93,7 +96,7 @@ function shouldEscalate(
  * Trigger escalation notifications
  */
 async function triggerEscalation(
-  supabase: SupabaseClient,
+  supabase: AnySupabaseClient,
   request: {
     id: string
     title: string
@@ -179,7 +182,7 @@ function findMatchingRule(
  * Get users to notify based on roles
  */
 async function getUsersToNotify(
-  supabase: SupabaseClient,
+  supabase: AnySupabaseClient,
   roles: string[]
 ): Promise<string[]> {
   if (roles.length === 0) return []
@@ -197,7 +200,7 @@ async function getUsersToNotify(
  * Called by Edge Function or cron job
  */
 export async function processAllActiveRequests(
-  supabase: SupabaseClient
+  supabase: AnySupabaseClient
 ): Promise<{
   processed: number
   escalated: number

@@ -4,11 +4,15 @@ import {
   VendorInvoiceItem,
   ExpenseRecord,
   ExpenseCategory,
-  ApprovalStatus
+  ApprovalStatus,
+  Database
 } from '@/types/database.types'
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type AnySupabaseClient = SupabaseClient<any, any, any>
+
 export interface CreateInvoiceParams {
-  supabase: SupabaseClient
+  supabase: AnySupabaseClient
   organizationId: string
   invoiceNumber: string
   invoiceDate: string
@@ -149,7 +153,7 @@ export async function createInvoice(
 
 // Update an invoice
 export async function updateInvoice(
-  supabase: SupabaseClient,
+  supabase: AnySupabaseClient,
   invoiceId: string,
   updates: Partial<CreateInvoiceParams>,
   newItems?: CreateInvoiceItemParams[]
@@ -240,7 +244,7 @@ export async function updateInvoice(
 
 // Delete an invoice
 export async function deleteInvoice(
-  supabase: SupabaseClient,
+  supabase: AnySupabaseClient,
   invoiceId: string
 ): Promise<{ success: boolean; error?: string }> {
   const { data: invoice, error: fetchError } = await supabase
@@ -271,7 +275,7 @@ export async function deleteInvoice(
 
 // Get expenses by request
 export async function getExpensesByRequest(
-  supabase: SupabaseClient,
+  supabase: AnySupabaseClient,
   requestId: string
 ): Promise<ExpenseRecord[]> {
   const { data, error } = await supabase
@@ -294,7 +298,7 @@ export async function getExpensesByRequest(
 
 // Get invoices by request
 export async function getInvoicesByRequest(
-  supabase: SupabaseClient,
+  supabase: AnySupabaseClient,
   requestId: string
 ): Promise<VendorInvoice[]> {
   const { data, error } = await supabase
@@ -317,7 +321,7 @@ export async function getInvoicesByRequest(
 
 // Get expense categories
 export async function getExpenseCategories(
-  supabase: SupabaseClient,
+  supabase: AnySupabaseClient,
   organizationId: string
 ): Promise<ExpenseCategory[]> {
   const { data, error } = await supabase
@@ -337,7 +341,7 @@ export async function getExpenseCategories(
 
 // Create direct expense record
 export async function createExpenseRecord(
-  supabase: SupabaseClient,
+  supabase: AnySupabaseClient,
   params: {
     organizationId: string
     categoryId?: string
@@ -385,7 +389,7 @@ export async function createExpenseRecord(
 
 // Get expense summary for dashboard
 export async function getExpenseSummary(
-  supabase: SupabaseClient,
+  supabase: AnySupabaseClient,
   organizationId: string,
   startDate?: string,
   endDate?: string
