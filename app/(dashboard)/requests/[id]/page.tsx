@@ -8,6 +8,7 @@ import { th } from 'date-fns/locale'
 import RequestActions from './RequestActions'
 import ChatSection from './ChatSection'
 import ImageGallery from './ImageGallery'
+import FeedbackPrompt from './FeedbackPrompt'
 import type { Profile, MaintenanceRequest, Attachment, StatusLog, Vendor } from '@/types/database.types'
 
 type RequestWithRelations = MaintenanceRequest & {
@@ -151,6 +152,15 @@ export default async function RequestDetailPage({
               </div>
             </div>
           )}
+
+          {/* Feedback Prompt */}
+          <FeedbackPrompt
+            requestId={request.id}
+            requestTitle={request.title}
+            status={request.status}
+            createdBy={request.created_by}
+            currentUserId={user.id}
+          />
         </div>
 
         {/* Sidebar */}

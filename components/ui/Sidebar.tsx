@@ -21,11 +21,14 @@ import {
   Truck,
   Settings,
   Shield,
+  Package,
+  Calendar,
 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { Profile } from '@/types/database.types'
 import { clsx } from 'clsx'
 import { useState } from 'react'
+import NotificationBell from './NotificationBell'
 
 interface SidebarProps {
   profile: Profile | null
@@ -105,6 +108,18 @@ export default function Sidebar({ profile }: SidebarProps) {
       name: 'ผู้รับเหมา',
       href: '/admin/vendors',
       icon: Truck,
+      show: isAdmin,
+    },
+    {
+      name: 'อุปกรณ์',
+      href: '/admin/equipment',
+      icon: Package,
+      show: isAdmin,
+    },
+    {
+      name: 'ตารางบำรุงรักษา',
+      href: '/admin/schedules',
+      icon: Calendar,
       show: isAdmin,
     },
     {
@@ -212,7 +227,13 @@ export default function Sidebar({ profile }: SidebarProps) {
                   {roleTitles[profile.role as keyof typeof roleTitles] || profile.role}
                 </p>
               </div>
+              <NotificationBell userId={profile.id} />
             </div>
+          </div>
+        )}
+        {collapsed && !isMobile && profile && (
+          <div className="mb-2 flex justify-center">
+            <NotificationBell userId={profile.id} />
           </div>
         )}
         {/* Settings Link */}

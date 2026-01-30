@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { Loader2, UserPlus, Play, CheckCircle, XCircle, Banknote } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { MaintenanceRequest, Profile, Vendor, StatusEnum } from '@/types/database.types'
+import { notifyAssignment, notifyStatusChange } from '@/lib/notifications'
 
 interface RequestActionsProps {
   request: MaintenanceRequest
@@ -32,10 +33,15 @@ export default function RequestActions({
     setLoading(true)
     const supabase = createClient()
 
-    await (supabase
-      .from('maintenance_requests') as ReturnType<typeof supabase.from>)
+    await supabase
+      .from('maintenance_requests')
       .update({ status })
       .eq('id', request.id)
+
+    // Notify request creator about status change
+    if (request.created_by) {
+      await notifyStatusChange(supabase, request.created_by, request.title, request.id, status)
+    }
 
     router.refresh()
     setLoading(false)
@@ -51,10 +57,20 @@ export default function RequestActions({
         ? { assigned_user_id: selectedId, status: 'assigned' as StatusEnum }
         : { assigned_vendor_id: selectedId, status: 'assigned' as StatusEnum }
 
-    await (supabase
-      .from('maintenance_requests') as ReturnType<typeof supabase.from>)
+    await supabase
+      .from('maintenance_requests')
       .update(update)
       .eq('id', request.id)
+
+    // Send notification to assignee
+    if (assignType === 'technician') {
+      await notifyAssignment(supabase, selectedId, request.title, request.id)
+    }
+
+    // Notify request creator about status change
+    if (request.created_by) {
+      await notifyStatusChange(supabase, request.created_by, request.title, request.id, 'assigned')
+    }
 
     setShowAssign(false)
     setSelectedId('')

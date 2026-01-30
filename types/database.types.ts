@@ -162,6 +162,7 @@ export type Database = {
           assigned_user_id: string | null
           assigned_vendor_id: string | null
           branch_id: string
+          equipment_id: string | null
           category: string | null
           created_at: string | null
           created_by: string
@@ -184,6 +185,7 @@ export type Database = {
           created_by: string
           description?: string | null
           due_at?: string | null
+          equipment_id?: string | null
           estimated_cost?: number | null
           id?: string
           priority?: Database["public"]["Enums"]["priority_enum"]
@@ -201,6 +203,7 @@ export type Database = {
           created_by?: string
           description?: string | null
           due_at?: string | null
+          equipment_id?: string | null
           estimated_cost?: number | null
           id?: string
           priority?: Database["public"]["Enums"]["priority_enum"]
@@ -232,6 +235,246 @@ export type Database = {
           },
           {
             foreignKeyName: "maintenance_requests_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "maintenance_requests_equipment_id_fkey"
+            columns: ["equipment_id"]
+            isOneToOne: false
+            referencedRelation: "equipment"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      equipment: {
+        Row: {
+          id: string
+          branch_id: string
+          name: string
+          category: string
+          brand: string | null
+          model: string | null
+          serial_number: string | null
+          purchase_date: string | null
+          warranty_expiry: string | null
+          location: string | null
+          status: string | null
+          notes: string | null
+          created_at: string | null
+        }
+        Insert: {
+          id?: string
+          branch_id: string
+          name: string
+          category: string
+          brand?: string | null
+          model?: string | null
+          serial_number?: string | null
+          purchase_date?: string | null
+          warranty_expiry?: string | null
+          location?: string | null
+          status?: string | null
+          notes?: string | null
+          created_at?: string | null
+        }
+        Update: {
+          id?: string
+          branch_id?: string
+          name?: string
+          category?: string
+          brand?: string | null
+          model?: string | null
+          serial_number?: string | null
+          purchase_date?: string | null
+          warranty_expiry?: string | null
+          location?: string | null
+          status?: string | null
+          notes?: string | null
+          created_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "equipment_branch_id_fkey"
+            columns: ["branch_id"]
+            isOneToOne: false
+            referencedRelation: "branches"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      notifications: {
+        Row: {
+          id: string
+          user_id: string
+          type: string
+          title: string
+          message: string | null
+          request_id: string | null
+          is_read: boolean | null
+          created_at: string | null
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          type: string
+          title: string
+          message?: string | null
+          request_id?: string | null
+          is_read?: boolean | null
+          created_at?: string | null
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          type?: string
+          title?: string
+          message?: string | null
+          request_id?: string | null
+          is_read?: boolean | null
+          created_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notifications_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notifications_request_id_fkey"
+            columns: ["request_id"]
+            isOneToOne: false
+            referencedRelation: "maintenance_requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      maintenance_schedules: {
+        Row: {
+          id: string
+          name: string
+          description: string | null
+          category: string
+          frequency_days: number
+          branch_id: string | null
+          equipment_id: string | null
+          assigned_user_id: string | null
+          assigned_vendor_id: string | null
+          priority: string | null
+          last_generated_at: string | null
+          next_due_at: string
+          is_active: boolean | null
+          created_at: string | null
+        }
+        Insert: {
+          id?: string
+          name: string
+          description?: string | null
+          category: string
+          frequency_days: number
+          branch_id?: string | null
+          equipment_id?: string | null
+          assigned_user_id?: string | null
+          assigned_vendor_id?: string | null
+          priority?: string | null
+          last_generated_at?: string | null
+          next_due_at: string
+          is_active?: boolean | null
+          created_at?: string | null
+        }
+        Update: {
+          id?: string
+          name?: string
+          description?: string | null
+          category?: string
+          frequency_days?: number
+          branch_id?: string | null
+          equipment_id?: string | null
+          assigned_user_id?: string | null
+          assigned_vendor_id?: string | null
+          priority?: string | null
+          last_generated_at?: string | null
+          next_due_at?: string
+          is_active?: boolean | null
+          created_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "maintenance_schedules_branch_id_fkey"
+            columns: ["branch_id"]
+            isOneToOne: false
+            referencedRelation: "branches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "maintenance_schedules_equipment_id_fkey"
+            columns: ["equipment_id"]
+            isOneToOne: false
+            referencedRelation: "equipment"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "maintenance_schedules_assigned_user_id_fkey"
+            columns: ["assigned_user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "maintenance_schedules_assigned_vendor_id_fkey"
+            columns: ["assigned_vendor_id"]
+            isOneToOne: false
+            referencedRelation: "vendors"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      request_feedback: {
+        Row: {
+          id: string
+          request_id: string
+          rating_speed: number | null
+          rating_quality: number | null
+          rating_service: number | null
+          overall_rating: number | null
+          comment: string | null
+          created_by: string
+          created_at: string | null
+        }
+        Insert: {
+          id?: string
+          request_id: string
+          rating_speed?: number | null
+          rating_quality?: number | null
+          rating_service?: number | null
+          comment?: string | null
+          created_by: string
+          created_at?: string | null
+        }
+        Update: {
+          id?: string
+          request_id?: string
+          rating_speed?: number | null
+          rating_quality?: number | null
+          rating_service?: number | null
+          comment?: string | null
+          created_by?: string
+          created_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "request_feedback_request_id_fkey"
+            columns: ["request_id"]
+            isOneToOne: true
+            referencedRelation: "maintenance_requests"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "request_feedback_created_by_fkey"
             columns: ["created_by"]
             isOneToOne: false
             referencedRelation: "profiles"
@@ -424,6 +667,10 @@ export type Attachment = Tables<"attachments">
 export type SlaLog = Tables<"sla_logs">
 export type StatusLog = Tables<"status_logs">
 export type CostLog = Tables<"cost_logs">
+export type Equipment = Tables<"equipment">
+export type Notification = Tables<"notifications">
+export type MaintenanceSchedule = Tables<"maintenance_schedules">
+export type RequestFeedback = Tables<"request_feedback">
 
 export type RoleEnum = Enums<"role_enum">
 export type PriorityEnum = Enums<"priority_enum">

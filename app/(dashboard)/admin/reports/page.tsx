@@ -16,6 +16,7 @@ import {
   Clock,
 } from 'lucide-react'
 import type { Profile, MaintenanceRequest, SlaLog } from '@/types/database.types'
+import ExportButton from './ExportButton'
 
 type RequestWithBranch = MaintenanceRequest & { branch: { name: string } | null }
 
@@ -96,14 +97,17 @@ export default async function ReportsPage() {
   return (
     <div className="space-y-8 animate-fade-in">
       {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold text-coffee-900 flex items-center gap-3">
-          <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-purple-700 rounded-xl flex items-center justify-center shadow-lg shadow-purple-700/30">
-            <BarChart3 className="h-5 w-5 text-white" />
-          </div>
-          รายงาน
-        </h1>
-        <p className="text-coffee-600 mt-1">ภาพรวมงานแจ้งซ่อมทั้งหมดในระบบ</p>
+      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-bold text-coffee-900 flex items-center gap-3">
+            <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-purple-700 rounded-xl flex items-center justify-center shadow-lg shadow-purple-700/30">
+              <BarChart3 className="h-5 w-5 text-white" />
+            </div>
+            รายงาน
+          </h1>
+          <p className="text-coffee-600 mt-1">ภาพรวมงานแจ้งซ่อมทั้งหมดในระบบ</p>
+        </div>
+        <ExportButton />
       </div>
 
       {/* Main Stats */}
